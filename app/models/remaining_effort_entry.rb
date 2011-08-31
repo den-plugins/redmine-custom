@@ -11,6 +11,9 @@ class RemainingEffortEntry < ActiveRecord::Base
       if RemainingEffortEntry.find(:all, :conditions => ["issue_id = #{issue.id}"]).present?
         # do not save if remaining_effort is NULL and is not first entry
         return false
+      elsif issue.estimated_hours.nil?
+        # do not save if estimated_hours is NULL
+        return false
       else
         #set the default value, i.e. the estimated_hours
         self.remaining_effort = issue.estimated_hours
