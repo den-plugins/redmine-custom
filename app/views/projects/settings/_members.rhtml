@@ -1,0 +1,107 @@
+<script type="text/javascript">
+  function isFloat(val) {
+    var isNumber = !isNaN(new Number(val));
+    if(isNumber) {
+      return(true);
+    } else {
+      return(false);
+    }
+  }
+  
+  function validateFloat(elem){
+    if(isFloat(elem.value)){
+      return true;
+    }else{
+      alert('invalid value type: need float');
+      elem.value = '0';
+      return false;
+    }
+  }
+</script>
+
+<%= error_messages_for 'member' %>
+<% roles = Role.find_all_givable
+   members = @project.members.find(:all, :include => [:role, :user]).sort %>
+
+<div class="splitcontentleft">
+<% if members.any? %>
+<table class="list">
+	<thead>
+	  <th><%= l(:label_user) %></th>
+	  <th><%= l(:label_role) %></th>
+	  <th><%= "Internal Rate" %></th>
+	  <th><%= "SOW Rate" %></th>
+	  <th style="width:15%"></th>
+          <%= call_hook(:view_projects_settings_members_table_header, :project => @project) %>
+	</thead>
+	<tbody>
+	<% members.each do |member| %>
+	<% next if member.new_record? %>
+	<tr id="member-<%= member.id %>" class="<%= cycle 'odd', 'even' %>">
+	<td><%=h member.name %></td>
+  <td align="center">
+  <% if authorize_for('members', 'edit') %>
+    <% remote_form_for(:member, member, :url => {:controller => 'members', :action => 'edit', :id => member}, :method => :post) do |f| %>
+      <%= f.select :role_id, roles.collect{|role| [role.name, role.id]}, {}, :class => "small" %>
+      <%= submit_tag l(:button_change), :class => "small" %>
+    <% end %>
+  <% end %>
+  </td>
+  <td align="center">
+  <% if authorize_for('members', 'edit') %>
+    <% remote_form_for(:member, member, :url => {:controller => 'members', :action => 'edit', :id => member}, :method => :post) do |f| %>
+      <%= f.text_field :internal_rate, :size => 5 %>
+      <%= submit_tag l(:button_change), :class => "small" %>
+    <% end %>
+  <% end %>
+  </td>
+  <td align="center">
+  <% if authorize_for('members', 'edit') %>
+    <% remote_form_for(:member, member, :url => {:controller => 'members', :action => 'edit', :id => member}, :method => :post) do |f| %>
+      <%= f.text_field :sow_rate, :size => 5, :id => 'member_sow_rate_' + member.id.to_s %>
+      <%= submit_tag l(:button_change), :class => "small", :onclick => "return validateFloat(document.getElementById('member_sow_rate_#{member.id}'))" %>                     
+    <% end %>
+  <% end %>
+  </td>
+  
+    <td align="center">
+      <%= link_to_remote l(:button_delete), { :url => {:controller => 'members', :action => 'destroy', :id => member},
+                                              :confirm => l(:text_are_you_sure),
+                                              :method => :post
+                                            }, :title => l(:button_delete),
+                                               :class => 'icon icon-del' %>
+    </td>
+    <%= call_hook(:view_projects_settings_members_table_row, { :project => @project, :member => member}) %>
+	</tr>
+	</tbody>
+<% end; reset_cycle %>
+</table>
+<% else %>
+<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
+</div>
+
+
+<% users_count = User.active.count - @project.users.count
+   users = (users_count < 600) ? User.active.find(:all, :limit => 200).sort - @project.users : [] %>
+
+<div class="splitcontentright">
+<% if roles.any? && users_count > 0 %>
+  <% remote_form_for(:member, @member, :url => {:controller => 'members', :action => 'new', :id => @project}, :method => :post) do |f| %>
+    <fieldset><legend><%=l(:label_member_new)%></legend>
+		<p><%= text_field_tag 'member[user_login]', nil, :size => "40" %></p>
+		<div id="member_user_login_choices" class="autocomplete">sqd</div>
+		<%= javascript_tag "new Ajax.Autocompleter('member_user_login', 'member_user_login_choices', '#{ url_for(:controller => 'members', :action => 'autocomplete_for_member_login', :id => @project) }', { minChars: 1, frequency: 0.5, paramName: 'user' });" %>
+		<% unless users.empty? %>
+			<div>
+			<% users.each do |user| -%>
+			<label><%= check_box_tag 'member[user_ids][]', user.id, false %> <%= user %></label>
+			<% end -%>
+			</div>
+		<% end %>
+    <p><%= l(:label_role) %>: <%= f.select :role_id, roles.collect{|role| [role.name, role.id]}, :selected => nil %>
+    <%= submit_tag l(:button_add) %></p>
+		</fieldset>
+  <% end %>
+<% end %>
+</div>
