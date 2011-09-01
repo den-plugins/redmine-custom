@@ -17,12 +17,22 @@ module Custom
     module InstanceMethods
     
       def remaining_effort=(value)
+        old_value = remaining_effort
         self.remaining_effort_entries.build(:remaining_effort => value, :created_on => Date.today)
+        @current_journal ||= Journal.new(:journalized => self, :user => User.current, :notes => "")
+        journalize_remaining_effort(old_value, value)
       end
       
       def remaining_effort
         entry = RemainingEffortEntry.find(:last, :conditions => ["issue_id = #{self.id}"]) unless self.new_record?
         return entry.nil? ? nil : entry.remaining_effort
+      end
+      
+      def journalize_remaining_effort(old_value, value)
+        @current_journal.details << JournalDetail.new(:property => 'attr',
+                                                      :prop_key => 'remaining_effort',
+                                                      :old_value => old_value.to_f,
+                                                      :value => value.to_f) unless value == old_value
       end
       
     end
