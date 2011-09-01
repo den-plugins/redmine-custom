@@ -83,7 +83,7 @@
 
 
 <% users_count = User.active.count - @project.users.count
-   users = (users_count < 600) ? User.active.find(:all, :limit => 200).sort - @project.users : [] %>
+   users = (users_count < 600) ? User.active.all.sort - @project.users : [] %>
 
 <div class="splitcontentright">
 <% if roles.any? && users_count > 0 %>
