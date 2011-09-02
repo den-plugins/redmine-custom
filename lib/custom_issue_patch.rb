@@ -19,8 +19,10 @@ module Custom
       def remaining_effort=(value)
         old_value = remaining_effort
         self.remaining_effort_entries.build(:remaining_effort => value, :created_on => Date.today)
-        @current_journal ||= Journal.new(:journalized => self, :user => User.current, :notes => "")
-        journalize_remaining_effort(old_value, value)
+        unless new_record?
+          @current_journal ||= Journal.new(:journalized => self, :user => User.current, :notes => "")
+          journalize_remaining_effort(old_value.to_f, value.to_f)
+        end
       end
       
       def remaining_effort
@@ -31,8 +33,8 @@ module Custom
       def journalize_remaining_effort(old_value, value)
         @current_journal.details << JournalDetail.new(:property => 'attr',
                                                       :prop_key => 'remaining_effort',
-                                                      :old_value => old_value.to_f,
-                                                      :value => value.to_f) unless value == old_value
+                                                      :old_value => old_value,
+                                                      :value => value) unless value == old_value
       end
       
     end
