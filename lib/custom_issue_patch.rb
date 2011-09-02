@@ -8,6 +8,25 @@ module Custom
       base.class_eval do
         unloadable # Send unloadable so it will not be unloaded in development
         has_many :remaining_effort_entries, :dependent => :destroy
+#-------still dirty-----------------
+        def update_parent_status
+        closed_issues = children.collect{|x| x.closed?}
+        if closed_issues.include? false
+           in_progress_issues = self.children.collect{|x| !x.status.name.eql? "New"}
+           if in_progress_issues.include? true
+             self.status = IssueStatus.find_by_name("In Progress")
+           else
+              self.status = IssueStatus.find_by_name("New")
+           end
+        else
+          puts "closing parent"
+          self.status = IssueStatus.find_by_name("Closed")
+        end
+        if self.save
+          updated_on_will_change!
+        end
+      end
+#----------------------------------
       end
     end
     
