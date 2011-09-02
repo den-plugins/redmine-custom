@@ -36,6 +36,10 @@ module Custom
                                                       :old_value => old_value,
                                                       :value => value) unless value == old_value
       end
+
+      def bug_feature_status_diff
+        IssueStatus.all(:conditions => "name = 'For Monitoring' or name = 'Not a Defect' or name = 'Cannot Reproduce' or name = 'Feedback'")
+      end
       
     end
   end
