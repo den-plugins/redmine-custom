@@ -4,23 +4,14 @@ class RemainingEffortEntry < ActiveRecord::Base
   validates_numericality_of :remaining_effort, :allow_nil => true
   
   before_create :set_default
-  
+
+  # This method sets the default value of <tt>:estimated_hours</tt>.
+  # do not save if remaining_effort is NULL and is not first entry
+  # do not save if estimated_hours is NULL
+  # do not save if value is the same as the latest entry
   def set_default
-    issue = Issue.find(self.issue.id)
-    if remaining_effort.nil?
-      if RemainingEffortEntry.find(:all, :conditions => ["issue_id = #{issue.id}"]).present?
-        # do not save if remaining_effort is NULL and is not first entry
-        return false
-      elsif issue.estimated_hours.nil?
-        # do not save if estimated_hours is NULL
-        return false
-      else
-        #set the default value, i.e. the estimated_hours
-        self.remaining_effort = issue.estimated_hours
-      end
-    else
-      # do not save if value is the same as the latest entry
-      return false if remaining_effort == issue.remaining_effort
+    unless RemainingEffortEntry.find(:first, :conditions => ["issue_id = #{issue_id}"]) && issue.estimated_hours.nil? && remaining_effort
+      self.remaining_effort = issue.estimated_hours
     end
   end
 end
