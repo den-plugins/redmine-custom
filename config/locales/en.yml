@@ -9,3 +9,4 @@ en:
     errors:
       messages:
         one_parent_allowed: "already has a parent"
+        cant_be_blank: "can't be blank"
