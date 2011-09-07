@@ -38,7 +38,7 @@ module Custom
       def remaining_effort=(value)
         old_value = remaining_effort
         self.remaining_effort_entries.build(:remaining_effort => value, :created_on => Date.today)
-        unless new_record?
+        unless new_record? or value.to_f == 0
           @current_journal ||= Journal.new(:journalized => self, :user => User.current, :notes => "")
           journalize_remaining_effort(old_value.to_f, value.to_f)
         end

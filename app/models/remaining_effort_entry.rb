@@ -7,11 +7,12 @@ class RemainingEffortEntry < ActiveRecord::Base
 
   # This method sets the default value of <tt>:estimated_hours</tt>.
   # do not save if remaining_effort is NULL and is not first entry
-  # do not save if estimated_hours is NULL
+  # do not save if remaining_effort is NULL and estimated_hours is NULL
   # do not save if value is the same as the latest entry
   def set_default
-    unless RemainingEffortEntry.find(:first, :conditions => ["issue_id = #{issue_id}"]) && issue.estimated_hours.nil? && remaining_effort
-      self.remaining_effort = issue.estimated_hours
-    end
+    issue = Issue.find(self.issue.id)
+    self.remaining_effort = issue.estimated_hours if remaining_effort.nil? && issue.estimated_hours && !issue.remaining_effort
+    return false if (remaining_effort.nil? && (issue.remaining_effort or issue.estimated_hours.nil?)) or
+                                (remaining_effort && remaining_effort == issue.remaining_effort)
   end
 end
