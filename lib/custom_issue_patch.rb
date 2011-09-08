@@ -35,6 +35,22 @@ module Custom
     
     module InstanceMethods
     
+      def bug?
+        self.tracker_id.eql? 1
+      end
+      
+      def feature?
+        self.tracker_id.eql? 2
+      end
+       
+      def support?
+        self.tracker_id.eql? 3
+      end
+      
+      def task?
+        self.tracker_id.eql? 4
+      end
+    
       def remaining_effort=(value)
         old_value = remaining_effort
         self.remaining_effort_entries.build(:remaining_effort => value, :created_on => Date.today)
