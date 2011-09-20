@@ -9,11 +9,18 @@ module Custom
         unloadable # Send unloadable so it will not be unloaded in development
         has_many :remaining_effort_entries, :dependent => :destroy
         after_save :update_parent_status, :if => :not_parent?
-        
+#        after_destroy :update_parent_status, :if => :not_parent?
+      end
+    end
+    
+    module ClassMethods
+    end
+    
+    module InstanceMethods
 #TODO: Refactor
-      def update_parent_status
+      def update_parent_status(parent_issue = parent.issue_from)
         closed_issues = parent_issue.children.collect{|x| x.closed?}
-        if closed_issues.include? false
+        if closed_issues.include? false or closed_issues.empty?
            in_progress_issues = parent_issue.children.collect{|x| !x.status.name.eql? "New"}
            if in_progress_issues.include? true
              parent_issue.status = IssueStatus.find_by_name("In Progress")
@@ -29,20 +36,12 @@ module Custom
         end
       end
 
-      end
-    end
-    
-    module ClassMethods
-    end
-    
-    module InstanceMethods
-
-      def parent_issue
-        parent.issue_from
-      end
+#      def parent_issue
+#        parent.issue_from
+#      end
   
       def not_parent?
-        !children.any? && parent
+        !children.any? and parent
       end
       
       def bug?
