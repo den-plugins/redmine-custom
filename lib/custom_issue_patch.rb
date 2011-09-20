@@ -8,8 +8,8 @@ module Custom
       base.class_eval do
         unloadable # Send unloadable so it will not be unloaded in development
         has_many :remaining_effort_entries, :dependent => :destroy
-        after_save :update_parent_status, :if => :not_parent?
-#        after_destroy :update_parent_status, :if => :not_parent?
+        after_save :update_parent_status, :if => :has_parent?
+        #after_destroy :update_parent_status, :if => :not_parent?
       end
     end
     
@@ -17,8 +17,10 @@ module Custom
     end
     
     module InstanceMethods
-#TODO: Refactor
+      
+      #TODO: Refactor
       def update_parent_status(parent_issue = parent.issue_from)
+        puts "updating #{self.id}'s parent"
         closed_issues = parent_issue.children.collect{|x| x.closed?}
         if closed_issues.include? false or closed_issues.empty?
            in_progress_issues = parent_issue.children.collect{|x| !x.status.name.eql? "New"}
@@ -36,12 +38,16 @@ module Custom
         end
       end
 
-#      def parent_issue
-#        parent.issue_from
-#      end
+      def parent_issue
+        parent.issue_from
+      end
   
       def not_parent?
         !children.any? and parent
+      end
+
+      def has_parent?
+        !parent.nil?
       end
       
       def bug?
