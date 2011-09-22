@@ -40,9 +40,9 @@ class SubtaskController < IssuesController
       @issue.status = (@allowed_statuses.include? requested_status) ? requested_status : default_status
 
       if @issue.save
-        @relation = IssueRelation.new(:issue_from => Issue.find(params[:issue_from_id]), :relation_type => params[:relation_type])
-        #@relation.issue_from = Issue.find(params[:issue_from_id])
-        #@relation.relation_type = params[:relation_type]
+        @relation = IssueRelation.new()
+        @relation.issue_from = Issue.find(params[:issue_from_id])
+        @relation.relation_type = params[:relation_type]
         @relation.issue_to = @issue     
         @relation.save
         attach_files(@issue, params[:attachments])
