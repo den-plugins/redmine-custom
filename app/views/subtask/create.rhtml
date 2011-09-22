@@ -11,6 +11,7 @@
     </div>
     <%= hidden_field_tag 'project_id', @project.id %>
     <%= hidden_field_tag 'issue_from_id', params[:issue_from_id] %>
+    <%= hidden_field_tag 'relation_type', params[:relation_type] %>
     <%= submit_tag l(:button_create) %>
     <%= link_to_remote l(:label_preview), 
                        { :url => { :controller => 'issues', :action => "preview", :project_id => @project ,:user_action=>"new" },
@@ -19,7 +20,7 @@
                          :with => "Form.serialize('issue-form')",
                          :complete => "Element.scrollTo('preview')"
                        }, :accesskey => accesskey(:preview) %>
-    | <%= link_to l(:button_cancel), { :controller => 'issues', :project_id => @project } %>
+    | <%= link_to l(:button_cancel), { :controller => 'issues', :action => 'show', :id => params[:issue_from_id] } %>
     <%= javascript_tag "Form.Element.focus('issue_subject');" %>
 <% end %>
 
