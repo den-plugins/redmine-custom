@@ -7,7 +7,7 @@ class SubtaskController < IssuesController
 
   
   def create
-    @project = Project.find(params[:project_id])
+    @project = Project.find(params[:project_id] ? params[:project_id] : params[:issue][:project_id])
     @issue = Issue.new
     @issue.copy_from(params[:copy_from]) if params[:copy_from]
     @issue.project = @project
@@ -31,10 +31,6 @@ class SubtaskController < IssuesController
     end    
     @issue.status = default_status
     @allowed_statuses = ([default_status] + default_status.find_new_statuses_allowed_to(User.current.role_for_project(@project), @issue.tracker)).uniq
-    
-    if params[:issue_from_id]
-
-    end
 
     if request.get? || request.xhr?
       @issue.start_date ||= Date.today
@@ -44,16 +40,16 @@ class SubtaskController < IssuesController
       @issue.status = (@allowed_statuses.include? requested_status) ? requested_status : default_status
 
       if @issue.save
-        @relation = IssueRelation.new()
-        @relation.issue_from = Issue.find(params[:issue_from_id])
-        @relation.relation_type = params[:relation_type]
+        @relation = IssueRelation.new(:issue_from => Issue.find(params[:issue_from_id]), :relation_type => params[:relation_type])
+        #@relation.issue_from = Issue.find(params[:issue_from_id])
+        #@relation.relation_type = params[:relation_type]
         @relation.issue_to = @issue     
         @relation.save
         attach_files(@issue, params[:attachments])
         flash[:notice] = l(:notice_successful_create)
         call_hook(:controller_issues_new_after_save, { :params => params, :issue => @issue})
-        redirect_to(params[:continue] ? { :action => 'new', :tracker_id => @issue.tracker } :
-                                        { :action => 'show', :id => @issue })
+        redirect_to(params[:continue] ? { :action => 'create', :tracker_id => @issue.tracker } :
+                                        {  :controller => 'issues' ,:action => 'show', :id => @relation.issue_from })
         return
       end		
     end	

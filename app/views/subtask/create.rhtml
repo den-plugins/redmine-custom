@@ -2,13 +2,15 @@
 
 <h2><%=l(:label_issue_new)%></h2>
 <%= hidden_field_tag 'sample', 'sample', :id=>'sample'%>
+
 <% labelled_tabular_form_for :issue, @issue, 
                              :html => {:multipart => true, :id => 'issue-form'} do |f| %>
     <%= error_messages_for 'issue' %>
     <div class="box">
       <%= render :partial => 'form', :locals => {:f => f} %>
     </div>
-  
+    <%= hidden_field_tag 'project_id', @project.id %>
+    <%= hidden_field_tag 'issue_from_id', params[:issue_from_id] %>
     <%= submit_tag l(:button_create) %>
     <%= link_to_remote l(:label_preview), 
                        { :url => { :controller => 'issues', :action => "preview", :project_id => @project ,:user_action=>"new" },
