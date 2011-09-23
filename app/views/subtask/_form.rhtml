@@ -1,5 +1,5 @@
 <% if @issue.new_record? %>
-<p><%= f.select :tracker_id, @project.trackers.collect {|t| [t.name, t.id]}, :required => true %></p>
+<p><%= f.select :tracker_id, @project.trackers.collect {|t| [t.name, t.id]}, :selected => @tracker_id %></p>
 <%= observe_field :issue_tracker_id, :url => { :action => :create, :project_id => @project },
                                      :update => :content,
                                      :with => "Form.serialize('issue-form')" %>
