@@ -1,0 +1,20 @@
+##CUSTOM FEATURES FOR ISSUES:
+
+##Updating status
+
+  Issues w/ subfeatures/subtasks:
+    Parent is "New" if all descendants are "New"
+    "Closed" if all descendants are "Closed"
+    "In-progress" if at least one descendant is niether "New" nor "Closed"
+
+##Issue Relation
+
+  Adding:
+    Features: can only add Features/Tasks as subtasks.
+    Bugs: can only add Bugs as subtasks.
+    A subtask (Feature/Task/Bug), can only have 1 parent.
+    Parent's status is automatically updated depending on the subtask's status. (see Updating status)
+
+  Deleting subtasks or Issues with parent:
+    Parent's status is automatically updated depending on the remaining subtasks' statuses.
+    If all subtasks are deleted, Parent's status is automatically set to "New".
