@@ -3,9 +3,6 @@ class SubtaskController < IssuesController
   before_filter :find_optional_project
   skip_filter :authorize
 
-   
-
-  
   def create
     @tracker_id = params[:issue] ? (params[:issue][:tracker_id].to_i) : 4
     @project = Project.find(params[:project_id] ? params[:project_id] : params[:issue][:project_id])

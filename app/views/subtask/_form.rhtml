@@ -1,4 +1,5 @@
 <% if @issue.new_record? %>
+
 <p><%= f.select :tracker_id, @tracker_list, :selected => @tracker_id %></p>
 <%= observe_field :issue_tracker_id, :url => { :action => :create, :project_id => @project },
                                      :update => :content,
