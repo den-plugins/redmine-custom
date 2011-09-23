@@ -14,3 +14,5 @@ en:
       messages:
         one_parent_allowed: "already has a parent"
         cant_be_blank: "can't be blank"
+
+  text_destroy_time_entries_question: "{{hours}} hours were reported on the issues you are about to delete. What do you want to do?"
