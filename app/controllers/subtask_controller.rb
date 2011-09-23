@@ -13,6 +13,20 @@ class SubtaskController < IssuesController
     @issue.copy_from(params[:copy_from]) if params[:copy_from]
     @issue.project = @project
     @mode = 'subtask'
+    
+    # Specify on case-basis the viable tracker options for the subtask
+    @tracker_list = []
+    @project.trackers.each do |x|
+      case
+      when params[:parent_tracker_id].to_i == 1 # Bug
+        @tracker_list << [x.name,x.id] if x.id == 1
+      when params[:parent_tracker_id].to_i == 2 # Feature
+        @tracker_list << [x.name,x.id] if x.id == 2 || 4
+      else
+        @tracker_list << [x.name,x.id] if x.id != 2
+      end
+    end
+
     # Tracker must be set before custom field values
     @issue.tracker ||= @project.trackers.find((params[:issue] && params[:issue][:tracker_id]) || params[:tracker_id] || :first)
     if @issue.tracker.nil?
