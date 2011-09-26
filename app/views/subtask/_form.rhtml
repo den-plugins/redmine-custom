@@ -1,10 +1,9 @@
 <% if @issue.new_record? %>
-
-<p><%= f.select :tracker_id, @tracker_list, :selected => @tracker_id %></p>
-<%= observe_field :issue_tracker_id, :url => { :action => :create, :project_id => @project },
-                                     :update => :content,
-                                     :with => "Form.serialize('issue-form')" %>
-<hr />
+  <p><%= f.select :tracker_id, @tracker_list, :selected => @tracker_id %></p>
+  <%= observe_field :issue_tracker_id, :url => { :action => :create, :project_id => @project },
+                                       :update => :content,
+                                       :with => "Form.serialize('issue-form')" %>
+  <hr />
 <% end %>
 
 <div id="issue_descr_fields" <%= 'style="display:none"' unless @issue.new_record? || @issue.errors.any? %>>

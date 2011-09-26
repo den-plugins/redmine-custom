@@ -11,7 +11,7 @@ class SubtaskController < IssuesController
     @issue.project = @project
     @mode = 'subtask'
     
-    # Specify on case-basis the viable tracker options for the subtask
+    # Specify on case-basis the viable tracker options for subtask
     @tracker_list = []
     @project.trackers.each do |x|
       case

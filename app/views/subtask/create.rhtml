@@ -9,6 +9,7 @@
     <div class="box">
       <%= render :partial => 'form', :locals => {:f => f} %>
     </div>
+    
     <%= hidden_field_tag 'project_id', @project.id %>
     <%= hidden_field_tag 'issue_from_id', params[:issue_from_id] %>
     <%= hidden_field_tag 'relation_type', params[:relation_type] %>
