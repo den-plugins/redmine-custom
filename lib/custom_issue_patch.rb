@@ -20,7 +20,6 @@ module Custom
       
       #TODO: Refactor
       def update_parent_status(parent_issue = parent.issue_from)
-        puts "updating #{self.id}'s parent"
         closed_issues = parent_issue.children.collect{|x| x.closed?}
         if closed_issues.include? false or closed_issues.empty?
            in_progress_issues = parent_issue.children.collect{|x| !x.status.name.eql? "New"}
@@ -68,9 +67,13 @@ module Custom
     
       def remaining_effort=(value)
         old_value = remaining_effort
-        self.remaining_effort_entries.build(:remaining_effort => value, :created_on => Date.today)
+        if entry = RemainingEffortEntry.find(:first, :conditions => ["issue_id = ? AND created_on = ?", self.id, Date.today])
+          entry.update_attributes({:remaining_effort => value})
+        else
+          self.remaining_effort_entries.build(:remaining_effort => value, :created_on => Date.today)
+        end
         unless new_record? or value.to_f == 0
-          @current_journal ||= Journal.new(:journalized => self, :user => User.current, :notes => "")
+          @current_journal ||= Journal.new(:journalized => [self, entry], :user => User.current, :notes => "")
           journalize_remaining_effort(old_value.to_f, value.to_f)
         end
       end
