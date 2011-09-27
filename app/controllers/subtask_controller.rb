@@ -5,6 +5,7 @@ class SubtaskController < IssuesController
 
   def create
     @tracker_id = params[:issue] ? (params[:issue][:tracker_id].to_i) : 4
+    @fixed_version_id = params[:fixed_version_id] ? (params[:fixed_version_id].to_i) : 0
     @project = Project.find(params[:project_id] ? params[:project_id] : params[:issue][:project_id])
     @issue = Issue.new
     @issue.copy_from(params[:copy_from]) if params[:copy_from]

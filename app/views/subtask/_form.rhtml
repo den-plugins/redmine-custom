@@ -35,7 +35,7 @@
 <% end %>
 <%= content_tag('p', f.select(:fixed_version_id, 
                               (@project.versions.sort.collect {|v| [v.name, v.id]}),
-                              { :include_blank => true })) unless @project.versions.empty? %>
+                              { :include_blank => true, :selected => @fixed_version_id })) unless @project.versions.empty? %>
 <%= content_tag('p', f.select(:affects_version_id, 
                               (@project.versions.sort.collect {|v| [v.name, v.id]}),
                               { :include_blank => true })) unless @project.versions.empty? %>
