@@ -23,7 +23,7 @@ class IssuesController < ApplicationController
   before_filter :find_project, :only => [:new, :update_form, :preview]
   before_filter :authorize, :except => [:index, :changes, :gantt, :calendar, :preview, :update_form, :context_menu, :new_remote, :edit_remote, :update_status_remote,
                                         :rollback_credit]
-  before_filter :filter
+  before_filter :filter, :only => [:gantt, :calendar]
   before_filter :find_optional_project, :only => [:index, :changes, :gantt, :calendar]
   skip_before_filter :check_if_login_required, :only => [:new_remote, :edit_remote, :update_status_remote]
   accept_key_auth :index, :changes
@@ -675,11 +675,11 @@ private
   
   def filter
     @output = case params[:milestone]
-          when "1"
-            [1,2]
-          else
-            [2]
-          end
+              when "1"
+                [1,2]
+              else
+                [2]
+              end
   end
   
   # Retrieve query from session or build a new query
