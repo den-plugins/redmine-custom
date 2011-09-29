@@ -8,8 +8,8 @@ module Custom
       base.class_eval do
         unloadable # Send unloadable so it will not be unloaded in development
         has_many :remaining_effort_entries, :dependent => :destroy
+        after_save :is_closed_issue_effects, :if => :closed?
         after_save :update_parent_status, :if => :has_parent?
-        #after_destroy :update_parent_status, :if => :not_parent?
       end
     end
     
@@ -29,14 +29,19 @@ module Custom
               parent_issue.status = IssueStatus.find_by_name("New")
            end
         else
-          puts "closing parent"
+          #puts "closing parent"
           parent_issue.status = IssueStatus.find_by_name("Closed")
         end
         if parent_issue.save
           updated_on_will_change!
         end
       end
-
+      
+      def is_closed_issue_effects
+        self.remaining_effort = 0 if !remaining_effort.nil?
+        self.send(:update_without_callbacks)
+      end
+      
       def parent_issue
         parent.issue_from
       end
