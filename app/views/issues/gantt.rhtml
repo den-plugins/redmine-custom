@@ -1,4 +1,4 @@
-<% form_tag(params.merge(:month => nil, :year => nil, :months => nil), :id => 'query_form') do %>
+<% form_tag(params.merge(:month => nil, :year => nil, :months => nil), :id => 'query_form', :name => 'form') do %>
 <% if @query.new_record? %>
     <h2><%=l(:label_gantt)%></h2>
     <fieldset id="filters"><legend><%= l(:label_filter_plural) %></legend>
@@ -16,7 +16,6 @@
     <%= select_year(@gantt.year_from, :prefix => "year", :discard_type => true) %>
     <%= hidden_field_tag 'zoom', @gantt.zoom %>
 </fieldset>
-
 <p style="float:right; margin:0px;">
 <%= if @gantt.zoom < 4
     link_to_remote image_tag('zoom_in.png'), {:url => @gantt.params.merge(:zoom => (@gantt.zoom+1)), :update => 'content'}, {:href => url_for(@gantt.params.merge(:zoom => (@gantt.zoom+1)))}
@@ -83,17 +82,29 @@ t_height = g_height + headers_height
 #
 top = headers_height + 8
 @gantt.events.each do |i| %>
-    <div style="position: absolute;line-height:1.2em;height:16px;top:<%= top %>px;left:4px;overflow:hidden;"><small>    
-    <% if i.is_a? Issue %>
-      	<%= h("#{i.project} -") unless @project && @project == i.project %>
-      	<%= link_to_issue i %>:	<%=h i.subject %>
-        <% else %>
-                <span class="icon icon-package">
-                <%= h("#{i.project} -") unless @project && @project == i.project %>
-                <%= link_to_version i %>
-                </span>
-        <% end %></small>
-    </div><% top = top + 20 %>
+
+    <% if @output.include?(1) %>
+       <% if i.is_a? Issue %>
+        <div style="position: absolute;line-height:1.2em;height:16px;top:<%= top %>px;left:4px;overflow:hidden;">
+          <small>
+            	<%= h("#{i.project} -") unless @project && @project == i.project %>
+            	<%= link_to_issue i %>:	<%=h i.subject %>
+          </small>
+        </div><% top += 20 %>
+      <% end %>
+    <% end %>
+    <% if @output.include?(2) %>
+      <% if i.is_a? Version %>
+        <div style="position: absolute;line-height:1.2em;height:16px;top:<%= top %>px;left:4px;overflow:hidden;">
+          <small>
+            <span class="icon icon-package">
+              <%= h("#{i.project} -") unless @project && @project == i.project %>
+              <%= link_to_version i %>
+            </span>
+          </small>
+        </div><% top += 20 %>
+      <% end %>
+    <% end %>
 <% end %>
 </div>
 </td>
@@ -181,47 +192,58 @@ end %>
 #
 top = headers_height + 10
 @gantt.events.each do |i| 
-  if i.is_a? Issue 
-	i_start_date = (i.start_date >= @gantt.date_from ? i.start_date : @gantt.date_from )
-	i_end_date = (i.due_before <= @gantt.date_to ? i.due_before : @gantt.date_to )
-	
-	i_done_date = i.start_date + ((i.due_before - i.start_date+1)*i.done_ratio/100).floor
-	i_done_date = (i_done_date <= @gantt.date_from ? @gantt.date_from : i_done_date )
-	i_done_date = (i_done_date >= @gantt.date_to ? @gantt.date_to : i_done_date )
-	
-	i_late_date = [i_end_date, Date.today].min if i_start_date < Date.today
-	
-	i_left = ((i_start_date - @gantt.date_from)*zoom).floor 	
-	i_width = ((i_end_date - i_start_date + 1)*zoom).floor - 2                  # total width of the issue (- 2 for left and right borders)
-	d_width = ((i_done_date - i_start_date)*zoom).floor - 2                     # done width
-	l_width = i_late_date ? ((i_late_date - i_start_date+1)*zoom).floor - 2 : 0 # delay width
+ 
+if @output.include?(1)
+  if i.is_a? Issue
+  	i_start_date = (i.start_date >= @gantt.date_from ? i.start_date : @gantt.date_from )
+  	i_end_date = (i.due_before <= @gantt.date_to ? i.due_before : @gantt.date_to )
+  	
+  	i_done_date = i.start_date + ((i.due_before - i.start_date+1)*i.done_ratio/100).floor
+  	i_done_date = (i_done_date <= @gantt.date_from ? @gantt.date_from : i_done_date )
+  	i_done_date = (i_done_date >= @gantt.date_to ? @gantt.date_to : i_done_date )
+  	
+  	i_late_date = [i_end_date, Date.today].min if i_start_date < Date.today
+  	
+  	i_left = ((i_start_date - @gantt.date_from)*zoom).floor 	
+  	i_width = ((i_end_date - i_start_date + 1)*zoom).floor - 2                  # total width of the issue (- 2 for left and right borders)
+  	d_width = ((i_done_date - i_start_date)*zoom).floor - 2                     # done width
+  	l_width = i_late_date ? ((i_late_date - i_start_date+1)*zoom).floor - 2 : 0 # delay width
 	%>
-	<div style="top:<%= top %>px;left:<%= i_left %>px;width:<%= i_width %>px;" class="task task_todo">&nbsp;</div>
-	<% if l_width > 0 %>
-	    <div style="top:<%= top %>px;left:<%= i_left %>px;width:<%= l_width %>px;" class="task task_late">&nbsp;</div>
-	<% end %>
-	<% if d_width > 0 %>
-	    <div style="top:<%= top %>px;left:<%= i_left %>px;width:<%= d_width %>px;" class="task task_done">&nbsp;</div>
-	<% end %>
-	<div style="top:<%= top %>px;left:<%= i_left + i_width + 5 %>px;background:#fff;" class="task">
-	<%= i.status.name %>
-	<%= (i.done_ratio).to_i %>%
-	</div>
-	<div class="tooltip" style="position: absolute;top:<%= top %>px;left:<%= i_left %>px;width:<%= i_width %>px;height:12px;">
-            <span class="tip">
-                <%= render_issue_tooltip i %>
-            </span>
-        </div>
-<% else 
+    <div style="top:<%= top %>px;left:<%= i_left %>px;width:<%= i_width %>px;" class="task task_todo">&nbsp;</div>
+    <% if l_width > 0 %>
+      <div style="top:<%= top %>px;left:<%= i_left %>px;width:<%= l_width %>px;" class="task task_late">&nbsp;</div>
+    <% end %>
+    <% if d_width > 0 %>
+      <div style="top:<%= top %>px;left:<%= i_left %>px;width:<%= d_width %>px;" class="task task_done">&nbsp;</div>
+    <% end %>
+  	<div style="top:<%= top %>px;left:<%= i_left + i_width + 5 %>px;background:#fff;" class="task">
+    	<%= i.status.name %>
+    	<%= (i.done_ratio).to_i %>%
+  	</div>
+    <div class="tooltip" style="position: absolute;top:<%= top %>px;left:<%= i_left %>px;width:<%= i_width %>px;height:12px;">
+      <span class="tip">
+        <%= render_issue_tooltip i %>
+      </span>
+    </div>
+    <% top += 20 %>
+<% 
+  end
+end
+if @output.include?(2)
+  if i.is_a? Version
     i_left = ((i.start_date - @gantt.date_from)*zoom).floor
     %>
     <div style="top:<%= top %>px;left:<%= i_left %>px;width:15px;" class="task milestone">&nbsp;</div>
-	<div style="top:<%= top %>px;left:<%= i_left + 12 %>px;background:#fff;" class="task">
-            <%= h("#{i.project} -") unless @project && @project == i.project %>
-            <strong><%=h i %></strong>
-        </div>
-<% end %>
-	<% top = top + 20
+    <div style="top:<%= top %>px;left:<%= i_left + 12 %>px;background:#fff;" class="task">
+      <%= h("#{i.project} -") unless @project && @project == i.project %>
+      <strong><%=h i %></strong>
+    </div>
+    <% top += 20 %>
+<% 
+  end
+end 
+%>
+	<% 
 end %>
 
 <%
