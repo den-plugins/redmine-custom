@@ -91,6 +91,7 @@ function toggle_multi_select(field) {
     </td>
     </tr>
 <% end %>
+<% if @milestone_filter %>
     <tr>
         <td style="width:200px;">
             <% milestone = true if params[:milestone] == "1" %>
@@ -98,6 +99,7 @@ function toggle_multi_select(field) {
             <label for="cb_milestone">Issues</label>
         </td>
     </tr>
+<% end %>
 </table>
 </td>
 <td class="add-filter">
