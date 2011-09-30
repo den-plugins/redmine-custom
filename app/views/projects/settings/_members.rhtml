@@ -1,3 +1,20 @@
+<%= stylesheet_link_tag 'add_remove_members.css', :plugin => 'redmine_custom' %>
+<style>
+  div#add_remove_members span {
+    border: 1px solid #e4e4e4; display: inline-block; margin: 0 1px;
+    background-color: #EEE;
+  }
+
+  div#add_remove_members span.selected {
+    background-color: #FFF; padding: 3px;
+  }
+  div#add_remove_members span a {
+    padding: 3px; margin: 0; display: block;
+  }
+  div#add_remove_members span a:hover{
+    text-decoration: none; background-color: #FFFFDD;
+  }
+</style>
 <script type="text/javascript">
   function isFloat(val) {
     var isNumber = !isNaN(new Number(val));

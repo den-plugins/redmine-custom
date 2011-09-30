@@ -4,9 +4,9 @@
   <% remote_form_for(:member, @member, :url => {:controller => 'members', :action => 'new', :id => @project}, :method => :post) do |f| %>
     <fieldset>
     <legend>
-      <span style="border: 1px solid #e4e4e4; padding: 3px;"><%=l(:label_member_new)%></span>
-      <span style="border: 1px solid #e4e4e4; padding: 3px;">
-        <%= link_to_remote "Remove Member(s)", { :url => {:controller => 'multi_members', 
+      <span class="selected"><%=l(:label_member_new)%></span>
+      <span>
+        <%= link_to_remote "Remove member(s)", { :url => {:controller => 'multi_members', 
                                   :action => 'delete_members', :users_count => users_count, :project_id => @project},
                                   :update => "add_remove_members", :complete => "new Effect.Highlight('add_remove_members')"} %>
       </span>
