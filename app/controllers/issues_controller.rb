@@ -674,6 +674,7 @@ private
   end
   
   def filter
+    @milestone_filter = 1
     @output = case params[:milestone]
               when "1"
                 [1,2]
