@@ -237,14 +237,15 @@ top = headers_height + 10
     <% if @output.include?(2) %>
       <% if i.is_a? Version
     
-        i_left = ((i.start_date - @gantt.date_from)*zoom).floor
+        i_left = ((i.started_date - @gantt.date_from)*zoom).floor if i.started_date
         %>
-        <div style="top:<%= top %>px;left:<%= i_left %>px;width:15px;" class="task milestone">&nbsp;</div>
-        <div style="top:<%= top %>px;left:<%= i_left + 12 %>px;background:#fff;" class="task">
-    
-          <%= h("#{i.project} -") unless @project && @project == i.project %>
-          <strong><%=h i %></strong>
-        </div>
+          <%
+          i_width = ((i.effective_date - i.started_date + 1)*zoom).floor - 2 if i.started_date && i.effective_date
+          %>
+          
+          <div style="top:<%= top %>px;left:<%= i_left %>px;width:<%= i_width %>px;" class="task task_todo">
+            &nbsp;
+          </div>
         <% top += 20 %>
       <% end %>
     <% end %> 
