@@ -90,19 +90,33 @@ top = headers_height + 8
             	<%= h("#{i.project} -") unless @project && @project == i.project %>
             	<%= link_to_issue i %>:	<%=h i.subject %>
           </small>
-        </div><% top += 20 %>
+        </div>
+        <% top += 20 %>
       <% end %>
     <% end %>
     <% if @output.include?(2) %>
       <% if i.is_a? Version %>
-        <div style="position: absolute;line-height:1.2em;height:16px;top:<%= top %>px;left:4px;overflow:hidden;">
-          <small>
-            <span class="icon icon-package">
-              <%= h("#{i.project} -") unless @project && @project == i.project %>
-              <%= link_to_version i %>
-            </span>
-          </small>
-        </div><% top += 20 %>
+      		<% if (i.started_date == i.effective_date && i.version_type == 0) || i.started_date.nil? %>
+		        <div style="top:<%= top %>px;left:1px;width:15px;" class="task milestone">&nbsp;</div>
+		        <div style="top:<%= top %>px;left:<%= 1 + 12 %>px;background:#fff;" class="task">
+		    
+		          <%= h("#{i.project} -") unless @project && @project == i.project %>
+		          <strong>
+		              <!--<div style="top:<%= top %>px;left:<%#= i_left %>px;width:115px;" class="task task_late">&nbsp;</div>-->
+		              <%= h i %>
+		          </strong>
+		        </div>
+		      <% else %>
+		        <div style="position: absolute;line-height:1.2em;height:16px;top:<%= top %>px;left:4px;overflow:hidden;">
+		          <small>
+		            <span class="icon icon-package">
+		              <%= h("#{i.project} -") unless @project && @project == i.project %>
+		              <%= link_to_version i %>
+		            </span>
+		          </small>
+		        </div>
+		      <% end %>
+		        <% top += 20 %>
       <% end %>
     <% end %>
 <% end %>
@@ -238,14 +252,26 @@ top = headers_height + 10
       <% if i.is_a? Version
     
         i_left = ((i.started_date - @gantt.date_from)*zoom).floor if i.started_date
+        i_left_alternate = ((i.effective_date - @gantt.date_from)*zoom).floor if i.started_date.nil?
         %>
           <%
           i_width = ((i.effective_date - i.started_date + 1)*zoom).floor - 2 if i.started_date && i.effective_date
           %>
-          
-          <div style="top:<%= top %>px;left:<%= i_left %>px;width:<%= i_width %>px;" class="task task_todo">
-            &nbsp;
-          </div>
+      		<% if (i.started_date == i.effective_date && i.version_type == 0) || i.started_date.nil? %>
+		        <div style="top:<%= top %>px;left:<%= (i.started_date ? i_left : i_left_alternate) %>px;width:15px;" class="task milestone">&nbsp;</div>
+		        <div style="top:<%= top %>px;left:<%= (i.started_date ? i_left : i_left_alternate) + 12 %>px;background:#fff;" class="task">
+		    
+		          <%= h("#{i.project} -") unless @project && @project == i.project %>
+		          <strong>
+		              <!--<div style="top:<%= top %>px;left:<%#= i_left %>px;width:115px;" class="task task_late">&nbsp;</div>-->
+		              <%= h i %>
+		          </strong>
+		        </div>
+		      <% else %>
+		          <div style="top:<%= top %>px;left:<%= i_left %>px;width:<%= i_width %>px;" class="task task_todo">
+		            &nbsp;
+		          </div>
+          <% end %>
         <% top += 20 %>
       <% end %>
     <% end %> 
