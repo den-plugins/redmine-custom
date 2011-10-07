@@ -1,3 +1,6 @@
+<style type="text/css">
+  .iteration { background-image: url(/plugin_assets/redmine_custom/images/iteration.png); border: 1px solid #25e64c; }
+</style>
 <% form_tag(params.merge(:month => nil, :year => nil, :months => nil), :id => 'query_form', :name => 'form') do %>
 <% if @query.new_record? %>
     <h2><%=l(:label_gantt)%></h2>
@@ -96,7 +99,7 @@ top = headers_height + 8
     <% end %>
     <% if @output.include?(2) %>
       <% if i.is_a? Version %>
-      		<% if (i.started_date == i.effective_date && i.version_type == 0) || i.started_date.nil? %>
+      		<% if (i.started_date == i.effective_date && (i.version_type == 0 or i.version_type == 2)) || i.started_date.nil? %>
 		        <div style="top:<%= top %>px;left:1px;width:15px;" class="task milestone">&nbsp;</div>
 		        <div style="top:<%= top %>px;left:<%= 1 + 12 %>px;background:#fff;" class="task">
 		    
@@ -211,7 +214,7 @@ top = headers_height + 10
     #Issue
     #
     if @output.include?(1)
-      if i.is_a? Issue
+      if i.is_a?(Issue)
       	i_start_date = (i.start_date >= @gantt.date_from ? i.start_date : @gantt.date_from )
       	i_end_date = (i.due_before <= @gantt.date_to ? i.due_before : @gantt.date_to )
       	
@@ -249,7 +252,7 @@ top = headers_height + 10
     
     <!-- Version/Milestone -->
     <% if @output.include?(2) %>
-      <% if i.is_a? Version
+      <% if i.is_a?(Version)
     
         i_left = ((i.started_date - @gantt.date_from)*zoom).floor if i.started_date
         i_left_alternate = ((i.effective_date - @gantt.date_from)*zoom).floor if i.started_date.nil?
@@ -257,7 +260,7 @@ top = headers_height + 10
           <%
           i_width = ((i.effective_date - i.started_date + 1)*zoom).floor - 2 if i.started_date && i.effective_date
           %>
-      		<% if (i.started_date == i.effective_date && i.version_type == 0) || i.started_date.nil? %>
+      		<% if (i.started_date == i.effective_date && (i.version_type == 0 or i.version_type == 2)) || i.started_date.nil? %>
 		        <div style="top:<%= top %>px;left:<%= (i.started_date ? i_left : i_left_alternate) %>px;width:15px;" class="task milestone">&nbsp;</div>
 		        <div style="top:<%= top %>px;left:<%= (i.started_date ? i_left : i_left_alternate) + 12 %>px;background:#fff;" class="task">
 		    
@@ -268,7 +271,7 @@ top = headers_height + 10
 		          </strong>
 		        </div>
 		      <% else %>
-		          <div style="top:<%= top %>px;left:<%= i_left %>px;width:<%= i_width %>px;" class="task task_todo">
+		          <div style="top:<%= top %>px;left:<%= i_left %>px;width:<%= i_width %>px;" class="task iteration">
 		            &nbsp;
 		          </div>
           <% end %>
@@ -301,7 +304,12 @@ if Date.today >= @gantt.date_from and Date.today <= @gantt.date_to %>
 <%= image_tag 'task_done.png' %>&nbsp;&nbsp;<%= l(:label_gantt_task, :task => "Done") %><br />
 <%= image_tag 'task_late.png' %>&nbsp;&nbsp;<%= l(:label_gantt_task, :task => "Late") %><br />
 <%= image_tag 'task_todo.png' %>&nbsp;&nbsp;<%= l(:label_gantt_task, :task => "Todo") %><br />
-<%= image_tag 'milestone.png' %>&nbsp;&nbsp;<%= l(:label_version) %><br />
+<%= image_tag 'milestone.png' %>&nbsp;&nbsp;<%= l(:label_version) %>
+<div class="clear"></div>
+<div style="display:inline-block;">
+  <div style="margin-top:3px; width:8px; height:8px; float:left;" class="iteration"> </div> 
+  <div style="float:left; padding-left:5px;">Iteration</div>
+</div>
 
 <% other_formats_links do |f| %>
 	<%= f.link_to 'PDF', :url => @gantt.params %>
