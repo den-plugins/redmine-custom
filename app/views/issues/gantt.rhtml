@@ -304,12 +304,8 @@ if Date.today >= @gantt.date_from and Date.today <= @gantt.date_to %>
 <%= image_tag 'task_done.png' %>&nbsp;&nbsp;<%= l(:label_gantt_task, :task => "Done") %><br />
 <%= image_tag 'task_late.png' %>&nbsp;&nbsp;<%= l(:label_gantt_task, :task => "Late") %><br />
 <%= image_tag 'task_todo.png' %>&nbsp;&nbsp;<%= l(:label_gantt_task, :task => "Todo") %><br />
+<span style="width:8px; height:8px;"><%= image_tag '/plugin_assets/redmine_custom/images/iteration.png' %></span>&nbsp;&nbsp;Iteration<br />
 <%= image_tag 'milestone.png' %>&nbsp;&nbsp;<%= l(:label_version) %>
-<div class="clear"></div>
-<div style="display:inline-block;">
-  <div style="margin-top:3px; width:8px; height:8px; float:left;" class="iteration"> </div> 
-  <div style="float:left; padding-left:5px;">Iteration</div>
-</div>
 
 <% other_formats_links do |f| %>
 	<%= f.link_to 'PDF', :url => @gantt.params %>
