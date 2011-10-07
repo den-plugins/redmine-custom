@@ -69,13 +69,18 @@ module Custom
       def task?
         self.tracker_id.eql? 4
       end
-    
+      
+      #TODO: Refactor (in auto setting remaining_effort to 0 if issue is closed)
       def remaining_effort=(value)
         old_value = remaining_effort
         if entry = RemainingEffortEntry.find(:first, :conditions => ["issue_id = ? AND created_on = ?", self.id, Date.today])
           entry.update_attributes({:remaining_effort => value}) unless value.blank?
         else
-          self.remaining_effort_entries.build(:remaining_effort => value, :created_on => Date.today)
+          if value.to_i.eql?(0) && closed?
+            self.remaining_effort_entries.create(:remaining_effort => value, :created_on => Date.today)
+          else
+            self.remaining_effort_entries.build(:remaining_effort => value, :created_on => Date.today)
+          end
         end
         unless new_record? or value.blank?
           @current_journal ||= Journal.new(:journalized => self, :user => User.current, :notes => "")
