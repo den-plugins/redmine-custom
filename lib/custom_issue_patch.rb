@@ -7,6 +7,7 @@ module Custom
       base.send(:include, InstanceMethods)
       base.class_eval do
         unloadable # Send unloadable so it will not be unloaded in development
+        
         has_many :remaining_effort_entries, :dependent => :destroy
         after_save :is_closed_issue_effects, :if => :closed?
         after_save :update_parent_status, :if => :has_parent?
@@ -38,7 +39,7 @@ module Custom
       end
       
       def is_closed_issue_effects
-        self.remaining_effort = 0 unless remaining_effort.nil?
+        self.remaining_effort = 0 unless remaining_effort.nil? or remaining_effort.to_i.eql?(0)
         self.send(:update_without_callbacks)
       end
       
@@ -73,6 +74,7 @@ module Custom
       #TODO: Refactor (in auto setting remaining_effort to 0 if issue is closed)
       def remaining_effort=(value)
         old_value = remaining_effort
+        return false if old_value.to_i.eql?(0) && IssueStatus.find(status_id).is_closed?
         if entry = RemainingEffortEntry.find(:first, :conditions => ["issue_id = ? AND created_on = ?", self.id, Date.today])
           entry.update_attributes({:remaining_effort => value}) unless value.blank?
         else
