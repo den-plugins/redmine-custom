@@ -30,8 +30,8 @@ module Custom
       
       def validate_parentship
         if issue_from && issue_to
-          errors.add :issue_to_id,
-            :invalid if relation_type.eql? "subtasks" and issue_from.tracker_id.eql? 2 and issue_to.tracker_id.eql? 1
+#          errors.add :issue_to_id,
+#            :invalid if relation_type.eql? "subtasks" and issue_from.tracker_id.eql? 2 and issue_to.tracker_id.eql? 1
           errors.add :issue_to_id,
             :invalid if relation_type.eql? "subtasks" and issue_from.tracker_id.eql? 4 and issue_to.tracker_id.eql? 2
           errors.add :issue_to_id,
