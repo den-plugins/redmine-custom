@@ -3,10 +3,12 @@ require 'redmine'
 # Patches to the Redmine core
 require 'custom_issue_patch'
 require 'custom_issue_relation_patch'
+require 'custom_version_patch'
 
 Dispatcher.to_prepare do
   Issue.send(:include, Custom::IssuePatch)
   IssueRelation.send(:include, Custom::IssueRelationPatch)
+  Version.send(:include, Custom::VersionPatch)
 end
 
 Redmine::Plugin.register :redmine_custom do
