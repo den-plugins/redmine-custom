@@ -43,11 +43,17 @@
 
 </div>
 
+
+
 <div class="splitcontentright">
 <p><%= f.text_field :start_date, :size => 10 %><%= calendar_for('issue_start_date') %></p>
-<p><%= f.text_field :due_date, :size => 10 %><%= calendar_for('issue_due_date') %></p>
-<p><%= f.text_field :estimated_hours, :size => 3 %> <%= l(:field_sp_hours) %></p>
-<p><%= f.text_field :remaining_effort, :size => 3, :readonly => (@issue.closed? ? true : false ) %> <%= l(:field_sp_hours) %></p>
+<p><%= f.text_field :due_date, :size => 10 %><%= calendar_for('issue_due_date') %><%= @issue.children.size %><%= @issue.task? %></p>
+<% if !@issue.feature? %>
+ <% if (@issue.task? && @issue.children.size < 1) || (!@issue.task?) %>
+    <p><%= f.text_field :estimated_hours, :size => 3 %> <%= l(:field_sp_hours) %></p>
+    <p><%= f.text_field :remaining_effort, :size => 3, :readonly => (@issue.closed? ? true : false ) %> <%= l(:field_sp_hours) %></p>
+ <% end %>
+<% end %>
 <p><%= f.select :done_ratio, ((0..10).to_a.collect {|r| ["#{r*10} %", r*10] }) %></p>
 </div>
 
