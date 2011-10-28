@@ -52,6 +52,9 @@
  <% if (@issue.task? && @issue.children.size < 1) || (!@issue.task?) %>
     <p><%= f.text_field :estimated_hours, :size => 3 %> <%= l(:field_sp_hours) %></p>
     <p><%= f.text_field :remaining_effort, :size => 3, :readonly => (@issue.closed? ? true : false ) %> <%= l(:field_sp_hours) %></p>
+ <% elsif @issue.task? && @issue.children.size > 0 %>
+    <%= f.hidden_field :estimated_hours, :size => 3, :value => 0 %>
+    <%= f.hidden_field :remaining_effort, :size => 3, :value => 0,:readonly => (@issue.closed? ? true : false ) %>
  <% end %>
 <% end %>
 <p><%= f.select :done_ratio, ((0..10).to_a.collect {|r| ["#{r*10} %", r*10] }) %></p>
