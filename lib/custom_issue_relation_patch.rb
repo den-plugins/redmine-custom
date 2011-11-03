@@ -10,6 +10,7 @@ module Custom
         after_save :update_parent_status
         after_destroy :update_parent_status_on_delete
         validate :validate_parentship
+        after_save :update_parent_effort, :if => :issue_task?
 
       end
     end
@@ -27,6 +28,18 @@ module Custom
         issue = Issue.find issue_from
         issue.update_parent_status(issue)
       end
+      def issue_task?
+        if !issue_from.nil?
+          issue_from.tracker_id.eql? 4
+        end
+      end
+      def update_parent_effort
+	puts "+++++++++++++++++" + issue_from.to_s
+        issue = Issue.find issue_from
+        issue.estimated_hours = 0
+        issue.remaining_effort = 0
+        issue.save if issue.not_parent?
+      end 
       
       def validate_parentship
         if issue_from && issue_to

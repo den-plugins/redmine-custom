@@ -11,6 +11,7 @@ module Custom
         has_many :remaining_effort_entries, :dependent => :destroy
         after_save :is_closed_issue_effects, :if => :closed?
         after_save :update_parent_status, :if => :has_parent?
+  #after_update :set_estimated_hours, :if => :child_of_task?
       end
     end
     
@@ -18,7 +19,7 @@ module Custom
     end
     
     module InstanceMethods
-      
+
       #TODO: Refactor
       def update_parent_status(parent_issue = parent.issue_from)
         closed_issues = parent_issue.children.collect{|x| x.closed?}
