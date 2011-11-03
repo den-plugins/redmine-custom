@@ -109,15 +109,15 @@ module Custom
 
       def auto_create_tasks
         predefined_tasks = [
-          "Requirements analysis - #{subject}",
-          "Analysis of Use case docs - #{subject}",
-          "QA testing - #{subject}",
-          "Coding - #{subject}",
-          "Functional Validation - #{subject}",
-          "Code Review - #{subject}",
-          "Unit testing - #{subject}",
-          "Defect analysis and fixing - #{subject}",
-          "Test Case Creation - #{subject}",
+          "Requirements analysis of #{subject}",
+          "Analysis of Use case docs #{subject}",
+          "QA testing #{subject}",
+          "Coding #{subject}",
+          "Functional Validation #{subject}",
+          "Code Review #{subject}",
+          "Unit testing #{subject}",
+          "Defect analysis and fixing #{subject}",
+          "Test Case Creation #{subject}",
           "Integration"
         ]
         predefined_tasks.each do |task_subject|
