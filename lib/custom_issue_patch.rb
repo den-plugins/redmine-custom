@@ -11,7 +11,7 @@ module Custom
         has_many :remaining_effort_entries, :dependent => :destroy
         after_save :is_closed_issue_effects, :if => :closed?
         after_save :update_parent_status, :if => :has_parent?
-  #after_update :set_estimated_hours, :if => :child_of_task?
+        after_create :auto_create_tasks, :if => :feature?
       end
     end
     
@@ -105,6 +105,41 @@ module Custom
 
       def bug_feature_status_diff
         IssueStatus.all(:conditions => "name = 'For Monitoring' or name = 'Not a Defect' or name = 'Cannot Reproduce' or name = 'Feedback'")
+      end
+
+      def auto_create_tasks
+        predefined_tasks = [
+          "Requirements analysis of #{subject}",
+          "Analysis of Use case docs #{subject}",
+          "QA testing #{subject}",
+          "Coding #{subject}",
+          "Functional Validation #{subject}",
+          "Code Review #{subject}",
+          "Unit testing #{subject}",
+          "Defect analysis and fixing #{subject}",
+          "Test Case Creation #{subject}",
+          "Integration"
+        ]
+        predefined_tasks.each do |task_subject|
+          @task = Issue.new
+          @task.project = Project.find(project_id)
+          @task.tracker_id = 4
+          @task.subject = task_subject
+          @task.fixed_version_id = fixed_version_id
+          @task.status = IssueStatus.default
+          @task.priority = Enumeration.find(4)
+          @task.acctg_type = 11
+          @task.start_date = Date.today
+          @task.author = User.current
+          if @task.save
+            @relation = IssueRelation.new()
+            @relation.issue_from = Issue.find(id)
+            @relation.relation_type = "subtasks"
+            @relation.issue_to = @task
+            @relation.save
+          end
+          puts "DONE >> #{task_subject}"
+        end
       end
       
     end
