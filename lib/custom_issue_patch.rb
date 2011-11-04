@@ -13,7 +13,7 @@ module Custom
         has_many :remaining_effort_entries, :dependent => :destroy
         after_save :is_closed_issue_effects, :if => :closed?
         after_save :update_parent_status, :if => :has_parent?
-        after_create :auto_create_tasks, :if => "feature? and !predefined_tasks.nil?"
+        after_save :auto_create_tasks, :if => "feature? and !predefined_tasks.nil?"
       end
     end
     

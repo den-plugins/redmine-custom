@@ -5,9 +5,8 @@
 
 class CustomIssuesController < IssuesController
 
-  skip_before_filter :authorize, :only => [:new]
-  before_filter :custom_authorize, :only => [:new]
-  
+  skip_before_filter :authorize, :only => [:new, :edit]
+  before_filter :custom_authorize, :only => [:new, :edit]
   
   def new
     @issue = Issue.new
@@ -75,6 +74,73 @@ class CustomIssuesController < IssuesController
     @accounting = Enumeration.accounting_types
     @default = !@project.accounting.nil? ? @project.accounting.id : Enumeration.accounting_types.default.id if Enumeration.accounting_types
     render :template => 'issues/new', :layout => !request.xhr?
+  end
+
+  def edit
+    @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
+    @priorities = Enumeration.priorities
+    @accounting = Enumeration.accounting_types
+    @default = @issue.accounting.id
+    @edit_allowed = User.current.allowed_to?(:edit_issues, @project)
+    @time_entry = TimeEntry.new
+
+    @notes = params[:notes]
+    journal = @issue.init_journal(User.current, @notes)
+    # User can change issue attributes only if he has :edit permission or if a workflow transition is allowed
+    if (@edit_allowed || !@allowed_statuses.empty?) && params[:issue]
+      attrs = params[:issue].dup
+      attrs.delete_if {|k,v| !UPDATABLE_ATTRS_ON_TRANSITION.include?(k) } unless @edit_allowed
+      attrs.delete(:status_id) unless @allowed_statuses.detect {|s| s.id.to_s == attrs[:status_id].to_s}
+      issue_clone = @issue.clone
+      @issue.predefined_tasks = params[:issue]['predefined_tasks']
+      @issue.attributes = attrs
+    end
+
+    if request.post?
+      Issue.transaction do
+        @time_entry = TimeEntry.new(:project => @project, :issue => @issue, :user => User.current, :spent_on => Date.today)
+        @time_entry.attributes = params[:time_entry]
+        attachments = attach_files(@issue, params[:attachments])
+        attachments.each {|a| journal.details << JournalDetail.new(:property => 'attachment', :prop_key => a.id, :value => a.filename)}
+      
+        call_hook(:controller_issues_edit_before_save, { :params => params, :issue => @issue, :time_entry => @time_entry, :journal => journal})
+
+        if (@time_entry.hours.nil? || @time_entry.valid?) && @issue.save
+          # Log spend time
+          if User.current.allowed_to?(:log_time, @project)
+            @time_entry.save
+            if !@time_entry.hours.nil?
+              journal.details << JournalDetail.new(:property => 'timelog', :prop_key => 'hours', :value => @time_entry.hours)
+              journal.details << JournalDetail.new(:property => 'timelog', :prop_key => 'activity_id', :value => @time_entry.activity_id)
+              journal.details << JournalDetail.new(:property => 'timelog', :prop_key => 'spent_on', :value => @time_entry.spent_on)
+              if !@issue.estimated_hours.nil?
+                total_time_entry = TimeEntry.sum(:hours, :conditions => "issue_id = #{@issue.id}")
+                remaining_estimate = @issue.estimated_hours - total_time_entry
+                journal.details << JournalDetail.new(:property => 'timelog', :prop_key => 'remaining_estimate',
+                                                     :value => remaining_estimate >= 0 ? remaining_estimate : 0)
+              end
+              #journal.save
+            end
+            if !@time_entry.hours.nil? || !journal.notes.blank?
+              journal.save
+            end
+          end
+          if !journal.new_record?
+            # Only send notification if something was actually changed
+            flash[:notice] = l(:notice_successful_update)
+          end
+          call_hook(:controller_issues_edit_after_save, { :params => params, :issue => @issue, :time_entry => @time_entry, :journal => journal})
+          if update_ticket_at_mystic?
+            return(update_mystic_ticket(@issue, @notes))
+          else
+            redirect_to(params[:back_to] || {:controller => 'issues', :action => 'show', :id => @issue})
+          end
+        end
+      end # transaction end
+    end
+  rescue ActiveRecord::StaleObjectError
+    # Optimistic locking exception
+    flash.now[:error] = l(:notice_locking_conflict)
   end
   
   private
