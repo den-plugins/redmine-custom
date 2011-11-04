@@ -13,7 +13,8 @@ module Custom
         has_many :remaining_effort_entries, :dependent => :destroy
         after_save :is_closed_issue_effects, :if => :closed?
         after_save :update_parent_status, :if => :has_parent?
-        after_save :auto_create_tasks, :if => "feature? and !predefined_tasks.nil?"
+        after_create :auto_create_tasks, :if => "feature? and !predefined_tasks.nil?"
+        after_update :auto_create_tasks, :if => "feature? and !predefined_tasks.nil?"
       end
     end
     
@@ -144,7 +145,6 @@ module Custom
             @relation.issue_to = @task
             @relation.save
           end
-          puts "DONE >> #{task_subject}"
         end
       end
       
