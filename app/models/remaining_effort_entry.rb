@@ -18,9 +18,11 @@ class RemainingEffortEntry < ActiveRecord::Base
   end
 
   def set_estimated_hours
-    puts "+++++++++++++++++++++++++"
     issue = Issue.find(self.issue.id)
-    issue.estimated_hours = 0 if issue.tracker_id.eql? 4 and !issue.parent
+    if issue.tracker_id.eql? 4 and !issue.parent
+      issue.estimated_hours = 0
+      issue.save
+    end
   end
 
 end
