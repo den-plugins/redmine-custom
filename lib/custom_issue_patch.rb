@@ -111,18 +111,18 @@ module Custom
       end
 
       def predef_tasks
-      [
-        "Requirements analysis",
-        "Analysis of Use case docs",
-        "QA testing",
-        "Coding",
-        "Functional Validation",
-        "Code Review",
-        "Unit testing",
-        "Defect analysis and fixing",
-        "Test Case Creation",
-        "Integration"
-      ]
+        ptasks = [
+          "Requirements analysis",
+          "Analysis of Use case docs",
+          "QA testing",
+          "Coding",
+          "Functional Validation",
+          "Code Review",
+          "Unit testing",
+          "Defect analysis and fixing",
+          "Test Case Creation",
+          "Integration"
+        ]
       end
 
       def auto_create_tasks
