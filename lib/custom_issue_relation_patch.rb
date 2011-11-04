@@ -34,7 +34,6 @@ module Custom
         end
       end
       def update_parent_effort
-	puts "+++++++++++++++++" + issue_from.to_s
         issue = Issue.find issue_from
         issue.estimated_hours = 0
         issue.remaining_effort = 0

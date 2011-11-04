@@ -5,8 +5,8 @@
 
 class CustomIssuesController < IssuesController
 
-  skip_before_filter :authorize, :only => [:new, :edit]
-  before_filter :custom_authorize, :only => [:new, :edit]
+  skip_before_filter :authorize, :only => [:new, :find_project, :edit]
+  before_filter :custom_authorize, :only => [:new, :find_project, :edit]
   
   def new
     @issue = Issue.new
