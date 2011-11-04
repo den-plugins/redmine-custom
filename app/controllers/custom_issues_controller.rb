@@ -23,6 +23,7 @@ class CustomIssuesController < IssuesController
     if params[:issue].is_a?(Hash)
       @issue.attributes = params[:issue]
       @issue.watcher_user_ids = params[:issue]['watcher_user_ids'] if User.current.allowed_to?(:add_issue_watchers, @project)
+      @issue.predefined_tasks = params[:issue]['predefined_tasks']
     end
     @issue.author = User.current
     

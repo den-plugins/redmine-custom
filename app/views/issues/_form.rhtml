@@ -67,6 +67,14 @@
 
 <% if @issue.new_record? %>
 <p><label><%=l(:label_attachment_plural)%></label><%= render :partial => 'attachments/form' %></p>
+<p>
+  <% if params[:issue] and params[:issue][:tracker_id] == "2" %>
+    <label><%= l(:label_predefined_tasks) %></label>
+    <% @issue.predef_tasks.each do |ptask| %>
+      <label class="floating"><%= check_box_tag 'issue[predefined_tasks][]', ptask %> <%=h ptask %></label>
+    <% end %>
+  <% end %>
+</p>
 <% end %>
 
 <% if @issue.new_record? && User.current.allowed_to?(:add_issue_watchers, @project) -%>

@@ -7,6 +7,8 @@ module Custom
       base.send(:include, InstanceMethods)
       base.class_eval do
         unloadable # Send unloadable so it will not be unloaded in development
+
+        attr_accessor :predefined_tasks
         
         has_many :remaining_effort_entries, :dependent => :destroy
         after_save :is_closed_issue_effects, :if => :closed?
@@ -107,24 +109,39 @@ module Custom
         IssueStatus.all(:conditions => "name = 'For Monitoring' or name = 'Not a Defect' or name = 'Cannot Reproduce' or name = 'Feedback'")
       end
 
+      def predef_tasks
+      [
+        "Requirements analysis",
+        "Analysis of Use case docs",
+        "QA testing",
+        "Coding",
+        "Functional Validation",
+        "Code Review",
+        "Unit testing",
+        "Defect analysis and fixing",
+        "Test Case Creation",
+        "Integration"
+      ]
+      end
+
       def auto_create_tasks
-        predefined_tasks = [
-          "Requirements analysis of #{subject}",
-          "Analysis of Use case docs #{subject}",
-          "QA testing #{subject}",
-          "Coding #{subject}",
-          "Functional Validation #{subject}",
-          "Code Review #{subject}",
-          "Unit testing #{subject}",
-          "Defect analysis and fixing #{subject}",
-          "Test Case Creation #{subject}",
-          "Integration"
-        ]
+#        predefined_tasks = [
+#          "Requirements analysis - #{subject}",
+#          "Analysis of Use case docs - #{subject}",
+#          "QA testing - #{subject}",
+#          "Coding - #{subject}",
+#          "Functional Validation - #{subject}",
+#          "Code Review - #{subject}",
+#          "Unit testing - #{subject}",
+#          "Defect analysis and fixing - #{subject}",
+#          "Test Case Creation - #{subject}",
+#          "Integration"
+#        ]
         predefined_tasks.each do |task_subject|
           @task = Issue.new
           @task.project = Project.find(project_id)
           @task.tracker_id = 4
-          @task.subject = task_subject
+          @task.subject = (task_subject.eql?("Integration"))? task_subject : (task_subject + " - #{subject}")
           @task.fixed_version_id = fixed_version_id
           @task.status = IssueStatus.default
           @task.priority = Enumeration.find(4)
