@@ -43,8 +43,10 @@ module Custom
       end
       
       def is_closed_issue_effects
-        self.remaining_effort = 0 unless remaining_effort.nil? or remaining_effort.to_i.eql?(0)
-        self.send(:update_without_callbacks)
+        unless remaining_effort.nil? or remaining_effort.to_i.eql?(0)
+          self.remaining_effort = 0
+          self.save
+        end
       end
       
       def parent_issue
@@ -82,15 +84,13 @@ module Custom
         if entry = RemainingEffortEntry.find(:first, :conditions => ["issue_id = ? AND created_on = ?", self.id, Date.today])
           entry.update_attributes({:remaining_effort => value}) unless value.blank?
         else
-          if value.to_i.eql?(0) && closed?
-            self.remaining_effort_entries.create(:remaining_effort => value, :created_on => Date.today)
-          else
-            self.remaining_effort_entries.build(:remaining_effort => value, :created_on => Date.today)
-          end
+          self.remaining_effort_entries.build(:remaining_effort => value, :created_on => Date.today)
         end
         unless new_record? or value.blank?
-          @current_journal ||= Journal.new(:journalized => self, :user => User.current, :notes => "")
-          journalize_remaining_effort(old_value.to_f, value.to_f)
+          if @issue_before_change
+            @current_journal ||= Journal.new(:journalized => self, :user => User.current, :notes => "")
+            journalize_remaining_effort(old_value.to_f, value.to_f)
+          end
         end
       end
       

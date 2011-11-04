@@ -4,7 +4,7 @@ class RemainingEffortEntry < ActiveRecord::Base
   validates_numericality_of :remaining_effort, :allow_nil => true
   
   before_create :set_default
-  after_update :set_estimated_hours
+  #after_update :set_estimated_hours
 
   # This method sets the default value of <tt>:estimated_hours</tt>.
   # do not save if remaining_effort is NULL and is not first entry
