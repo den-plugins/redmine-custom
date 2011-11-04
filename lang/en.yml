@@ -1,6 +1,7 @@
 en:
   label_subtasks: Subtasks
   label_parent: Parent
+  label_predefined_tasks: Create pre-defined tasks
   
   field_estimated_hours: Estimated Effort
   field_remaining_effort: Remaining Effort
