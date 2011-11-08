@@ -28,17 +28,17 @@ module Custom
         issue = Issue.find issue_from
         issue.update_parent_status(issue)
       end
+      
       def issue_task?
-        if !issue_from.nil?
-          issue_from.tracker_id.eql? 4
-        end
+        issue_to.task? and relation_type.eql? "subtasks" and issue_from
       end
+      
       def update_parent_effort
-        issue = Issue.find issue_from
+        issue = Issue.find(issue_from)
         issue.estimated_hours = 0
         issue.remaining_effort = 0
-        issue.save if issue.not_parent?
-      end 
+        issue.save
+      end
       
       def validate_parentship
         if issue_from && issue_to
