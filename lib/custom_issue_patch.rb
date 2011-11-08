@@ -135,7 +135,7 @@ module Custom
           @task.fixed_version_id = fixed_version_id
           @task.status = IssueStatus.default
           @task.priority = Enumeration.find(4)
-          @task.acctg_type = 11
+          @task.acctg_type = acctg_type
           @task.start_date = Date.today
           @task.author = User.current
           if @task.save
