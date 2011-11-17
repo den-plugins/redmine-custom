@@ -6,4 +6,15 @@ class Holiday < ActiveRecord::Base
     @locations = CustomField.first(:conditions => "type = 'UserCustomField' and name = 'Location'")
     return @locations.possible_values
   end
+
+  def self.get_location
+    count = 0 
+    location = []
+    Holiday.locations.each do |loc|
+      location[count] = loc, count
+      count += 1
+    end
+    return location
+  end
+
 end
