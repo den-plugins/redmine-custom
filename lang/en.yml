@@ -15,3 +15,8 @@ en:
       messages:
         one_parent_allowed: "already has a parent"
         cant_be_blank: "can't be blank"
+  
+  field_event_date: Day
+  label_event_date: Day
+  label_title: Title
+  label_holiday_plural: Holidays

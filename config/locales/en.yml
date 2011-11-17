@@ -17,3 +17,8 @@ en:
         cant_be_blank: "can't be blank"
 
   text_destroy_time_entries_question: "{{hours}} hours were reported on the issues you are about to delete. What do you want to do?"
+
+  field_event_date: Day
+  label_event_date: Day
+  label_title: Title
+  label_holiday_plural: Holidays
