@@ -1,6 +1,7 @@
 class ChangeLocationType < ActiveRecord::Migration
   def self.up
-    change_column :holidays, :location, :integer 
+    remove_column :holidays, :location
+    add_column :holidays, :location, :integer 
   end
 
   def self.down
