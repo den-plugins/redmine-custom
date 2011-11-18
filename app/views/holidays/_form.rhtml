@@ -1,7 +1,7 @@
 <p><%= f.text_field :event_date, :size => 10 %><%= calendar_for('holiday_event_date') %></p>
 <p><%= f.text_field :title, :class=> 'wiki-edit' %></p>
 <p><%= f.text_area :description, :rows => 3, :cols => 30, :class=> 'wiki-edit' %></p>
-<p><label for="holiday_location">Location</label><%= select_tag "holiday[location][]", options_for_select(Holiday.get_location.each {|v| v}), :size => 4, :multiple => true, :class=> 'wiki-edit' %></p>
+<p><%= f. select :location, Holiday::LOCATIONS.sort.collect {|p| [ p[1], p[0] ] } %></p>
 <hr/>
 
 <% content_for :header_tags do %>

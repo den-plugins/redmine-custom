@@ -1,20 +1,7 @@
 class Holiday < ActiveRecord::Base
 
+  LOCATIONS = { 1 => 'Manila', 2 => 'Cebu', 3 => 'Cebu/Manila', 4 => 'Australia', 5 => 'US'}
+  
   validates_presence_of :title, :description, :location, :event_date
   
-  def self.locations
-    @locations = CustomField.first(:conditions => "type = 'UserCustomField' and name = 'Location'")
-    return @locations.possible_values
-  end
-
-  def self.get_location
-    count = 0 
-    location = []
-    Holiday.locations.each do |loc|
-      location[count] = loc, count
-      count += 1
-    end
-    return location
-  end
-
 end

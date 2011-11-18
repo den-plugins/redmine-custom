@@ -13,7 +13,7 @@
       <td><%= h.event_date %></td>
       <td><%= h.title %></td>
       <td><%= h.description %></td>
-      <td><%= h.location %></td>
+      <td><%= Holiday::LOCATIONS[h.location.to_i] unless h.location.nil? %></td>
       <td>
 	<%= link_to image_tag('edit.png'), {:controller => 'holidays' , :action => 'update', :id => h},
                                              :title => l(:button_edit) %>
