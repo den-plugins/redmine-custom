@@ -66,7 +66,7 @@ class CustomIssuesController < IssuesController
         flash[:notice] = l(:notice_successful_create)
         call_hook(:controller_issues_new_after_save, { :params => params, :issue => @issue})
         redirect_to(params[:continue] ? { :action => 'new', :tracker_id => @issue.tracker, :project_id => @project, :back_to => params[:back_to] } :
-                                        (params[:back_to] || { :action => 'show', :id => @issue }))
+                                        (params[:back_to] || { :controller => 'issues', :action => 'show', :id => @issue }))
         return
       end
     end	

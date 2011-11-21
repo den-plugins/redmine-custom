@@ -12,7 +12,7 @@
         <small>(<%= link_to l(:label_more), {}, :onclick => 'Effect.toggle("issue_descr_fields", "appear", {duration:0.3}); return false;' %>)</small>
         <% end %>
         </legend>
-        <%= render :partial => (@edit_allowed ? 'form' : 'form_update'), :locals => {:f => f} %>
+        <%= render :partial => (@edit_allowed ? 'issues/form' : 'issues/form_update'), :locals => {:f => f} %>
         </fieldset>
     <% end %>
     <% if authorize_for('timelog', 'edit') %>
