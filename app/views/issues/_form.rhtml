@@ -34,9 +34,7 @@
                      {:controller => 'projects', :action => 'add_issue_category', :id => @project},
                      :class => 'small', :tabindex => 199) if authorize_for('projects', 'add_issue_category') %></p>
 <% end %>
-<% if !@issue.fixed_version_id.nil? 
-fv = @project.versions.find(@issue.fixed_version_id) 
-end 	%>
+<% fv = !@issue.fixed_version_id.nil? ? @project.versions.find(:first, :conditions => ["versions.id = ? AND versions.state = ?", @issue.fixed_version_id, 3]) : nil%>
 <% get_incomplete = @project.versions.reject.each {|v| v if v.state==3}%>
 <%= content_tag('p', f.select(:fixed_version_id, 
                               (get_incomplete.sort.collect {|v| [v.name, v.id]} << (fv ? [fv.name,fv.id] : nil)).compact,
