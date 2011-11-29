@@ -72,10 +72,16 @@ end %>
     <% end %>
 </tr>
 <tr>
-    <td class="affects-version"><% if !@issue.feature? %><b><%=l(:field_affects_version)%> : </b></td><td><%= @issue.affects_version ? link_to_version(@issue.affects_version) : "-" %><% end %></td>
-    <% if @issue.remaining_effort %>
+  <% if !@issue.feature? %>
+    <td class="affects-version"><b><%=l(:field_affects_version)%> : </b></td>
+    <td><%= @issue.affects_version ? link_to_version(@issue.affects_version) : "-" %></td>
+  <% else %>
+    <td></td>
+    <td></td>
+  <% end %>
+  <% if @issue.remaining_effort %>
     <td class="remaining-effort"><b><%=l(:field_remaining_effort)%>:</b></td><td><%="#{@issue.remaining_effort} #{l(:field_sp_hours)}" %></td>
-    <% end %>
+  <% end %>
 </tr>
 
 <tr>
