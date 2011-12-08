@@ -21,7 +21,7 @@ module Custom
     module InstanceMethods
       def update_parent_status
         issue = Issue.find issue_to
-        issue.update_parent_status if issue.not_parent?
+        issue.update_parent_status(issue_from) #if issue.not_parent?
       end
 
       def update_parent_status_on_delete
