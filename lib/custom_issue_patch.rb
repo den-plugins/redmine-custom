@@ -41,6 +41,14 @@ module Custom
           updated_on_will_change!
         end
       end
+
+      def delete_child_issues
+        children.each do |c|
+          puts "Deleting child #{c.id}..." 
+          c.delete_child_issues
+          c.destroy
+        end
+      end
       
       def is_closed_issue_effects
         unless remaining_effort.nil? or remaining_effort.to_i.eql?(0)

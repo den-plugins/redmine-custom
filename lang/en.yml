@@ -2,6 +2,10 @@ en:
   label_subtasks: Subtasks
   label_parent: Parent
   label_predefined_tasks: Create pre-defined tasks
+
+  text_destroy_issue_children_question: There are sub issues found on the issue(s) you are about to delete. What do you want to do ?
+  text_destroy_parent_only: Delete parent issue(s) only.
+  text_destroy_all: Delete all issue(s) including all sub issues.
   
   field_estimated_hours: Estimated Effort
   field_remaining_effort: Remaining Effort

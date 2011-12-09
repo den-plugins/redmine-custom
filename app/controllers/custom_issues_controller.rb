@@ -5,8 +5,8 @@
 
 class CustomIssuesController < IssuesController
 
-  skip_before_filter :authorize, :only => [:new, :find_project, :edit]
-  before_filter :custom_authorize, :only => [:new, :find_project, :edit]
+  skip_before_filter :authorize, :only => [:new, :find_project, :edit, :destroy]
+  before_filter :custom_authorize, :only => [:new, :find_project, :edit, :destroy]
   
   def new
     @issue = Issue.new
@@ -141,6 +141,49 @@ class CustomIssuesController < IssuesController
   rescue ActiveRecord::StaleObjectError
     # Optimistic locking exception
     flash.now[:error] = l(:notice_locking_conflict)
+  end
+
+  def destroy
+    @hours = params[:children_todo] ? 0 : TimeEntry.sum(:hours, :conditions => ['issue_id IN (?)', @issues]).to_f
+    @children = IssueRelation.count('id',
+                                    :conditions => ["relation_type = 'subtasks' and issue_from_id IN (?)", @issues])
+    del_subtasks = false
+    if @hours > 0
+      case params[:todo]
+      when 'destroy'
+        # nothing to do
+      when 'nullify'
+        TimeEntry.update_all('issue_id = NULL', ['issue_id IN (?)', @issues])
+      when 'reassign'
+        reassign_to = @project.issues.find_by_id(params[:reassign_to_id])
+        if reassign_to.nil?
+          flash.now[:error] = l(:error_issue_not_found_in_project)
+          return
+        else
+          TimeEntry.update_all("issue_id = #{reassign_to.id}", ['issue_id IN (?)', @issues])
+        end
+      else
+        # display the destroy form
+        return
+      end
+    end
+    if @children > 0
+      @hours = 0
+      case params[:children_todo]
+      when 'destroy_parent_only'
+        # do nothing
+      when 'destroy_all'
+        del_subtasks = true
+      else
+        # display the destroy form
+        return
+      end
+    end
+    @issues.each do |i|
+      i.delete_child_issues if !i.children.blank? && del_subtasks
+      i.destroy if Issue.exists?(i)
+    end
+    redirect_to :action => 'index', :controller => 'issues', :project_id => @project
   end
   
   private
