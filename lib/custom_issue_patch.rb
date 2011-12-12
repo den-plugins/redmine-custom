@@ -138,7 +138,7 @@ module Custom
           @task = Issue.new
           @task.project = Project.find(project_id)
           @task.tracker_id = 4
-          @task.subject = @task.description = (task_subject.eql?("Integration"))? task_subject : ("#{subject} - " + task_subject)
+          @task.subject = @task.description = (task_subject.eql?("Integration"))? task_subject : (task_subject + " - #{subject}")
 #          @task.description = @task.subject
           @task.fixed_version_id = fixed_version_id
           @task.status = IssueStatus.default
