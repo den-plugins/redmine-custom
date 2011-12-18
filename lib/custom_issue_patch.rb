@@ -7,12 +7,14 @@ module Custom
       base.send(:include, InstanceMethods)
       base.class_eval do
         unloadable # Send unloadable so it will not be unloaded in development
-
-        attr_accessor :predefined_tasks
+        
+        attr_accessor :predefined_tasks, :old_status
         
         has_many :remaining_effort_entries, :dependent => :destroy
+        before_save :remember_old_status, :if => "!children.empty?"
         after_save :is_closed_issue_effects, :if => :closed?
         after_save :update_parent_status, :if => :has_parent?
+        after_save :closing_parent_status, :if => "closed? and !children.empty?"
         after_create :auto_create_tasks, :if => "feature? and !predefined_tasks.nil?"
         after_update :auto_create_tasks, :if => "feature? and !predefined_tasks.nil?"
       end
@@ -27,7 +29,7 @@ module Custom
       def update_parent_status(parent_issue = parent.issue_from)
         closed_issues = parent_issue.children.collect{|x| x.closed?}
         if closed_issues.include? false or closed_issues.empty?
-           in_progress_issues = parent_issue.children.collect{|x| !x.status.name.eql? "New"}
+           in_progress_issues = parent_issue.children.collect{|x| !x.status.name.eql? "New" and !x.status.name.eql? "Assigned" and !x.status.name.eql? "Reopened" and !x.status.name.eql? "Open"}
            if in_progress_issues.include? true
              parent_issue.status = IssueStatus.find_by_name("In Progress")
            else
@@ -39,6 +41,23 @@ module Custom
         end
         if parent_issue.save
           updated_on_will_change!
+        end
+      end
+
+      def remember_old_status
+        self.old_status = self.status
+        puts self.status
+      end
+
+      def closing_parent_status
+        children.each do |c|
+          if !c.closed?
+            self.status = old_status
+            if self.save
+              updated_on_will_change!
+            end
+            break
+          end
         end
       end
 
