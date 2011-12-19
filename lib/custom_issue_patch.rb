@@ -46,7 +46,6 @@ module Custom
 
       def remember_old_status
         self.old_status = self.status
-        puts self.status
       end
 
       def closing_parent_status
