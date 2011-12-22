@@ -39,9 +39,9 @@
 <%= content_tag('p', f.select(:fixed_version_id, 
                               (get_incomplete.sort.collect {|v| [v.name, v.id]} << (fv ? [fv.name,fv.id] : nil)).compact,
                               { :include_blank => true })) unless @project.versions.empty? %>
-<% if !@issue.feature? %>
+<% if @issue.bug? %>
 <%= content_tag('p', f.select(:affects_version_id, 
-                              (@project.versions.sort.collect {|v| [v.name, v.id]}),
+                              (@project.versions.affectable.collect {|v| [v.name, v.id]}),
                               { :include_blank => true })) unless @project.versions.empty? %>
 <% end %>
 </div>

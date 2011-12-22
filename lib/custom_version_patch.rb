@@ -10,10 +10,16 @@ module Custom
         before_save :set_completed_on, :if => :state
         validate :disallow_accepted, :if => "state == 3"
 #        after_save :update_parent_status, :if => :has_parent?
+
+        named_scope :affectable_accepted, :conditions => ["state = 3"], :order => "effective_date DESC", :limit => 3
+        named_scope :affectable_active, :conditions => ["state <> 1 and state <> 3"], :order => "effective_date DESC"
       end
     end
     
     module ClassMethods
+      def affectable
+        affectable_active + affectable_accepted
+      end
     end
     
     module InstanceMethods

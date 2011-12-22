@@ -72,7 +72,7 @@ end %>
     <% end %>
 </tr>
 <tr>
-  <% if !@issue.feature? %>
+  <% if @issue.bug? %>
     <td class="affects-version"><b><%=l(:field_affects_version)%> : </b></td>
     <td><%= @issue.affects_version ? link_to_version(@issue.affects_version) : "-" %></td>
   <% else %>
