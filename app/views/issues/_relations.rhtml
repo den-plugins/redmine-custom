@@ -30,7 +30,9 @@
         <td><%= image_tag('child.gif') %> <%= "(#{lwr(:actionview_datehelper_time_in_words_day, relation.delay)})" if relation.delay && relation.delay != 0 %> <%= link_to_issue relation.other_issue(@issue) %></td>
         <td><%=h other_issue.subject %></td>
         <td><%= other_issue.status.name %></td>
-	    <td><%= other_issue.fixed_version ? link_to_version(other_issue.fixed_version) : "-" %></td>
+        <%# NB: moved missing helper %>
+        <%version = other_issue.fixed_version%>
+        <td><%= (version && version.is_a?(Version)) ? (link_to h(version.name), { :controller => 'versions', :action => 'show', :id => version }) : "-" %></td>
         <td><%= other_issue.estimated_hours %></td>
         <td><%= other_issue.assigned_to ? link_to_user(other_issue.assigned_to) : "-" %></td>
         <td><%= format_date(other_issue.start_date) %></td>
