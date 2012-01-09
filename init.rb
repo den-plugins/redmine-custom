@@ -1,6 +1,7 @@
 require 'redmine'
 
 # Patches to the Redmine core
+require 'remaining_effort_entry'
 require 'custom_issue_patch'
 require 'custom_issue_relation_patch'
 require 'custom_version_patch'
