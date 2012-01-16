@@ -11,7 +11,9 @@
   <td><%= "(#{lwr(:actionview_datehelper_time_in_words_day, @issue.parent.delay)})" if @issue.parent.delay && @issue.parent.delay != 0 %> <%= link_to_issue @issue.parent.other_issue(@issue) %></td>
   <td><%=h @issue.parent.other_issue(@issue).subject %></td>
   <td><%= @issue.parent.other_issue(@issue).status.name %></td>
-  <td><%= @issue.fixed_version ? link_to_version(@issue.fixed_version) : "-" %></td>
+  <%# NB: moved missing helper %>
+  <%version = @issue.fixed_version%>
+  <td><%= (version && version.is_a?(Version)) ? (link_to h(version.name), { :controller => 'versions', :action => 'show', :id => version }) : "-" %></td>
   <td><%= format_date(@issue.parent.other_issue(@issue).start_date) %></td>
   <td><%= format_date(@issue.parent.other_issue(@issue).due_date) %></td>
   </tr>
