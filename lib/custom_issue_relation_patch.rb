@@ -7,7 +7,7 @@ module Custom
       base.send(:include, InstanceMethods)
       base.class_eval do
         unloadable # Send unloadable so it will not be unloaded in development
-        after_save :update_parent_status
+        after_save :update_parent_status, :if => :is_related_by_subtask?
         after_destroy :update_parent_status_on_delete
         validate :validate_parentship
         after_save :update_parent_effort, :if => :issue_task?
@@ -33,6 +33,10 @@ module Custom
         issue_to.task? and relation_type.eql? "subtasks" and issue_from
       end
       
+      def is_related_by_subtask?
+        relation_type.eql? "subtasks" and issue_from
+      end
+      
       def update_parent_effort
         issue = Issue.find(issue_from)
         issue.estimated_hours = 0
@@ -42,8 +46,8 @@ module Custom
       
       def validate_parentship
         if issue_from && issue_to
-#          errors.add :issue_to_id,
-#            :invalid if relation_type.eql? "subtasks" and issue_from.tracker_id.eql? 2 and issue_to.tracker_id.eql? 1
+          #errors.add :issue_to_id,
+          #:invalid if relation_type.eql? "subtasks" and issue_from.tracker_id.eql? 2 and issue_to.tracker_id.eql? 1
           errors.add :issue_to_id,
             :invalid if relation_type.eql? "subtasks" and issue_from.tracker_id.eql? 4 and issue_to.tracker_id.eql? 2
           errors.add :issue_to_id,
