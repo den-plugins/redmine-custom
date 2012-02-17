@@ -140,7 +140,8 @@ class CustomIssuesController < IssuesController
     end
   rescue ActiveRecord::StaleObjectError
     # Optimistic locking exception
-    flash.now[:error] = l(:notice_locking_conflict)
+    flash[:error] = l(:notice_locking_conflict)
+    redirect_to(params[:back_to] || {:controller => 'issues', :action => 'edit', :id => @issue})
   end
 
   def destroy
