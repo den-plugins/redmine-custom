@@ -173,6 +173,10 @@ module Custom
           end
         end
       end
+
+      def is_transferable?
+        time_entries.empty? and !closed? and remaining_effort == estimated_hours
+      end
       
     end
   end
