@@ -181,7 +181,7 @@ module Custom
       def children_transferable?
         res = true
         temp = children.map(&:is_transferable?)
-        res = false if temp.any? && temp.include?(false)
+        res = false if (!temp.blank? && temp.include?(false))
         res
       end
       
