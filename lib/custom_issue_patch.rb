@@ -175,7 +175,14 @@ module Custom
       end
 
       def is_transferable?
-        time_entries.empty? and !closed? and remaining_effort == estimated_hours
+        time_entries.empty? and !closed? and remaining_effort == estimated_hours and children_transferable?
+      end
+
+      def children_transferable?
+        res = true
+        temp = children.map(&:is_transferable?)
+        res = false if temp.any? && temp.include?(false)
+        res
       end
       
     end
