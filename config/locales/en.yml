@@ -11,7 +11,8 @@ en:
   field_remaining_effort: Remaining Effort
   field_remaining_effort_entries: Remaining Effort
   field_sp_hours: Story Points/ Hours
-  field_state: state
+  field_state: State
+  field_fixed_version: Release/Iteration
   
   task_board_text_no_sprint: There is no current Sprint for this Project
 
