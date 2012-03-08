@@ -51,8 +51,9 @@
 		<% end -%>
 		</ul>
 	</li>
-  <% unless @project.nil? || @project.versions.empty? -%>
-	<li class="folder">			
+	<% is_subtask = @issues.detect {|i| i.parent} %>
+	<% unless @project.nil? || @project.versions.empty? || is_subtask -%>
+	<li class="folder">
 		<a href="#" class="submenu"><%= l(:field_fixed_version) %></a>
 		<ul>
 		<% @project.versions.sort.each do |v| -%>

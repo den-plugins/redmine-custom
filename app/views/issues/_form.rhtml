@@ -34,13 +34,15 @@
                      {:controller => 'projects', :action => 'add_issue_category', :id => @project},
                      :class => 'small', :tabindex => 199) if authorize_for('projects', 'add_issue_category') %></p>
 <% end %>
+<% unless @issue.parent %>
 <% fv = !@issue.fixed_version_id.nil? ? @project.versions.find(:first, :conditions => ["versions.id = ? AND versions.state = ?", @issue.fixed_version_id, 3]) : nil%>
 <% get_incomplete = @project.versions.reject.each {|v| v if v.state==3}%>
-<%= content_tag('p', f.select(:fixed_version_id, 
+<%= content_tag('p', f.select(:fixed_version_id,
                               (get_incomplete.sort.collect {|v| [v.name, v.id]} << (fv ? [fv.name,fv.id] : nil)).compact,
                               { :include_blank => true })) unless @project.versions.empty? %>
+<% end %>
 <% if @issue.bug? %>
-<%= content_tag('p', f.select(:affects_version_id, 
+<%= content_tag('p', f.select(:affects_version_id,
                               (@project.versions.affectable.collect {|v| [v.name, v.id]}),
                               { :include_blank => true })) unless @project.versions.empty? %>
 <% end %>
