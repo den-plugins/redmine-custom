@@ -139,7 +139,13 @@ end %>
 <% if @journals.any? %>
 <div id="history">
 <h3><%=l(:label_history)%></h3>
+<div id="history_content">
 <%= render :partial => 'issues/history', :locals => { :journals => @journals } %>
+<% if @total_journals > 10 %>
+<h4></h4>
+<a onclick="new Ajax.Updater('history_content', '/issues/show?id=<%= @issue.id %>&show_more=true', {asynchronous:true, evalScripts:true}); return false;" href="#">Show More</a>
+<% end %>
+</div>
 </div>
 <% end %>
 <div style="clear: both;"></div>
