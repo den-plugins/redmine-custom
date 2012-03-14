@@ -6,8 +6,12 @@ class MultiMembersController < MembersController
   def destroy
     @members = Member.find_all_by_id(params[:id] || params[:member_ids])
     @project = @members.first.project
-    @members.each(&:destroy)
-	respond_to do |format|
+    @errors = ""
+    @members.each do |member|
+      @errors = member.errors.full_messages if !member.destroy and @errors.blank?
+    end
+    @errors = nil if @errors.blank?
+	  respond_to do |format|
       format.html { redirect_to :controller => 'projects', :action => 'settings', :tab => 'members', :id => @project }
       format.js { render(:update) {|page| page.replace_html "tab-content-members", :partial => 'projects/settings/members'} }
     end
