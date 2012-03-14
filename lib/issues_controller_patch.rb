@@ -13,8 +13,9 @@ module IssuesControllerPatch
     def show_with_limit_journals
       @journals = @issue.journals.find(:all, 
                                        :include => [:user, :details], 
-                                       :order => "#{Journal.table_name}.created_on DESC", 
+                                       :order => "#{Journal.table_name}.created_on #{params[:show_more].blank? ? 'DESC' : 'ASC'}", 
                                        :limit => (params[:show_more].blank? ? 10 : nil))
+      @journals = @journals.sort_by(&:created_on) if params[:show_more].blank?
       @total_journals = @issue.journals.count
       @journals.each_with_index {|j,i| j.indice = i+1}
       @journals.reverse! if User.current.wants_comments_in_reverse_order?
