@@ -138,6 +138,7 @@ class CustomIssuesController < IssuesController
         end
       end # transaction end
     end
+  render :template => "issues/edit", :layout => !request.xhr?
   rescue ActiveRecord::StaleObjectError
     # Optimistic locking exception
     flash[:error] = l(:notice_locking_conflict)
