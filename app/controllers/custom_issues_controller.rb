@@ -135,10 +135,11 @@ class CustomIssuesController < IssuesController
           else
             redirect_to(params[:back_to] || {:controller => 'issues', :action => 'show', :id => @issue})
           end
+        else
+          render :template => "issues/edit", :layout => !request.xhr?
         end
       end # transaction end
     end
-  render :template => "issues/edit", :layout => !request.xhr?
   rescue ActiveRecord::StaleObjectError
     # Optimistic locking exception
     flash[:error] = l(:notice_locking_conflict)
