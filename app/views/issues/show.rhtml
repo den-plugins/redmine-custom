@@ -144,7 +144,7 @@ end %>
 </div>
 <% if @total_journals > 10 and (params[:offset].to_i + 10) <= @total_journals %>
 <h4></h4>
-<a onclick="new Ajax.Request('/issues/show?id=<%= @issue.id %>&offset=<%= params[:offset].to_i + 10 %>', {asynchronous:true, evalScripts:true}); return false;" href="#">Show More</a>
+<a id="show_more_lnk" onclick="new Ajax.Request('/issues/show?id=<%= @issue.id %>&offset=<%= params[:offset].to_i + 10 %>', {asynchronous:true, evalScripts:true}); return false;" href="#">Show More</a>
 <% end %>
 </div>
 <% end %>

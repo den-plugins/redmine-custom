@@ -47,6 +47,11 @@ module IssuesControllerPatch
       else
         render :update do |page|
           page.insert_html :bottom, 'history_content', :partial => 'issues/history', :locals => { :journals => @journals }
+          if @total_journals > 10 and (params[:offset].to_i + 10) <= @total_journals
+            page.replace :show_more_lnk, "<a id=\"show_more_lnk\" onclick=\"new Ajax.Request('/issues/show?id=#{@issue.id}&offset=#{params[:offset].to_i + 10}', {asynchronous:true, evalScripts:true}); return false;\" href=\"#\">Show More</a>"
+          else
+            page.replace :show_more_lnk, ""
+          end
         end
       end
     end
