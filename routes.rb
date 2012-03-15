@@ -11,3 +11,5 @@ end
 
 map.connect 'stories/:project_id/issues/new/', :controller => 'custom_issues', :action => 'new'
 map.connect 'admin/holidays', :controller => 'holidays'
+map.connect 'projects/:project_id/issues/calendar', :controller => 'custom_issues', :action => 'calendar'
+map.connect 'projects/:project_id/issues/gantt', :controller => 'custom_issues', :action => 'gantt'

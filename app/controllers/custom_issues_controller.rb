@@ -7,6 +7,9 @@ class CustomIssuesController < IssuesController
 
   skip_before_filter :authorize, :only => [:new, :find_project, :edit, :destroy]
   before_filter :custom_authorize, :only => [:new, :find_project, :edit, :destroy]
+  before_filter :filter, :only => [:gantt, :calendar]
+  skip_before_filter :find_optional_project, :only => [:gantt, :calendar]
+  before_filter :custom_find_optional_project, :only => [:gantt, :calendar]
   
   def new
     @issue = Issue.new
@@ -74,6 +77,64 @@ class CustomIssuesController < IssuesController
     @accounting = Enumeration.accounting_types
     @default = !@project.accounting.nil? ? @project.accounting.id : Enumeration.accounting_types.default.id if Enumeration.accounting_types
     render :template => 'issues/new', :layout => !request.xhr?
+  end
+
+  def gantt    
+    @gantt = Redmine::Helpers::Gantt.new(params)
+    retrieve_query
+    if @query.valid?
+      events = []
+      # Issues that have start and due dates
+      events += Issue.find(:all, 
+                           :order => "start_date, due_date",
+                           :include => [:tracker, :status, :assigned_to, :priority, :project], 
+                           :conditions => ["(#{@query.statement}) AND (((start_date>=? and start_date<=?) or (due_date>=? and due_date<=?) or (start_date<? and due_date>?)) and start_date is not null and due_date is not null)", @gantt.date_from, @gantt.date_to, @gantt.date_from, @gantt.date_to, @gantt.date_from, @gantt.date_to]
+                           )
+      # Issues that don't have a due date but that are assigned to a version with a date
+      events += Issue.find(:all, 
+                           :order => "start_date, effective_date",
+                           :include => [:tracker, :status, :assigned_to, :priority, :project, :fixed_version], 
+                           :conditions => ["(#{@query.statement}) AND (((start_date>=? and start_date<=?) or (effective_date>=? and effective_date<=?) or (start_date<? and effective_date>?)) and start_date is not null and due_date is null and effective_date is not null)", @gantt.date_from, @gantt.date_to, @gantt.date_from, @gantt.date_to, @gantt.date_from, @gantt.date_to]
+                           )
+      # Versions
+      events += Version.find(:all, :include => :project,
+                                   :conditions => ["(#{@query.project_statement}) AND effective_date BETWEEN ? AND ?", @gantt.date_from, @gantt.date_to])
+                                   
+      @gantt.events = events
+    end
+    
+    respond_to do |format|
+      format.html { render :template => "issues/gantt.rhtml", :layout => !request.xhr? }
+      format.png  { send_data(@gantt.to_image, :disposition => 'inline', :type => 'image/png', :filename => "#{@project.nil? ? '' : "#{@project.identifier}-" }gantt.png") } if @gantt.respond_to?('to_image')
+      format.pdf  { send_data(gantt_to_pdf(@gantt, @project), :type => 'application/pdf', :filename => "#{@project.nil? ? '' : "#{@project.identifier}-" }gantt.pdf") }
+    end
+  end
+
+  def calendar
+    if params[:year] and params[:year].to_i > 1900
+      @year = params[:year].to_i
+      if params[:month] and params[:month].to_i > 0 and params[:month].to_i < 13
+        @month = params[:month].to_i
+      end    
+    end
+    @year ||= Date.today.year
+    @month ||= Date.today.month
+    
+    @calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
+    retrieve_query
+    if @query.valid?
+      events = []
+      events += Issue.find(:all, 
+                           :include => [:tracker, :status, :assigned_to, :priority, :project], 
+                           :conditions => ["(#{@query.statement}) AND ((start_date BETWEEN ? AND ?) OR (due_date BETWEEN ? AND ?))", @calendar.startdt, @calendar.enddt, @calendar.startdt, @calendar.enddt]
+                           )
+      events += Version.find(:all, :include => :project,
+                                   :conditions => ["(#{@query.project_statement}) AND effective_date BETWEEN ? AND ?", @calendar.startdt, @calendar.enddt])
+                                     
+      @calendar.events = events
+    end
+    
+    render :template => "issues/calendar", :layout => !request.xhr?
   end
 
   def edit
@@ -193,5 +254,22 @@ class CustomIssuesController < IssuesController
   def custom_authorize(action = params[:action])
     allowed = User.current.allowed_to?({:controller => 'issues', :action => action}, @project)
     allowed ? true : deny_access
+  end
+
+  def filter
+    @milestone_filter = 1
+    @output = case params[:milestone]
+              when "1"
+                [1,2]
+              else
+                [2]
+              end
+  end
+  def custom_find_optional_project
+    @project = Project.find(params[:project_id]) unless params[:project_id].blank?
+    allowed = User.current.allowed_to?({:controller => 'issues', :action => params[:action]}, @project, :global => true)
+    allowed ? true : deny_access
+  rescue ActiveRecord::RecordNotFound
+    render_404
   end
 end
