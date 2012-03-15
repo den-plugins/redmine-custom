@@ -13,13 +13,13 @@ module IssuesControllerPatch
     def show_with_limit_journals
       @journals = @issue.journals.find(:all, 
                                        :include => [:user, :details], 
-                                       :order => "#{Journal.table_name}.created_on #{params[:show_more].blank? ? 'DESC' : 'ASC'}", 
-                                       :limit => (params[:show_more].blank? ? 10 : nil))
-      @journals = @journals.sort_by(&:created_on) if params[:show_more].blank?
+                                       :order => "#{Journal.table_name}.created_on ASC", 
+                                       :limit => 10,
+                                       :offset => params[:offset].to_i)
       @total_journals = @issue.journals.count
       @journals.each_with_index {|j,i| j.indice = i+1}
       @journals.reverse! if User.current.wants_comments_in_reverse_order?
-		  if params[:show_more].blank?
+		  if params[:offset].blank?
         @changesets = @issue.changesets
         @changesets.reverse! if User.current.wants_comments_in_reverse_order?
         @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
@@ -45,7 +45,9 @@ module IssuesControllerPatch
           format.pdf  { send_data(issue_to_pdf(@issue), :type => 'application/pdf', :filename => "#{@project.identifier}-#{@issue.id}.pdf") }
         end
       else
-        render :partial => 'issues/history', :locals => { :journals => @journals }
+        render :update do |page|
+          page.insert_html :bottom, 'history_content', :partial => 'issues/history', :locals => { :journals => @journals }
+        end
       end
     end
   end

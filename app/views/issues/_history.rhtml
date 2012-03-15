@@ -1,0 +1,30 @@
+<% reply_links = authorize_for('issues', 'edit') -%>
+<% for journal in journals %>
+  <% if (!journal.details.empty? && (!(journal.details[0].property.eql?('timelog')) || User.current.allowed_to?(:view_time_entries, @project))) %>
+    <div id="change-<%= journal.id %>" class="journal">
+      <h4><!--<div style="float:right;"><%# link_to "##{journal.indice + params[:offset].to_i}", :anchor => "note-#{journal.indice + params[:offset].to_i}" %></div>
+      <%# content_tag('a', '', :name => "note-#{journal.indice + params[:offset].to_i}")%> -->
+      <%= authoring journal.created_on, journal.user, :label => :label_updated_time_by %></h4>
+      <%= avatar(journal.user, :size => "32") %>
+      <ul>
+      <% for detail in journal.details %>
+        <% if (detail.property.eql?('timelog') && User.current.allowed_to?(:view_time_entries, @project)) || (!detail.property.eql?('timelog')) %>
+          <li><%= show_detail(detail) %></li>
+        <% end %>
+      <% end %>
+      </ul>
+      <%= render_notes(journal, :reply_links => reply_links) unless journal.notes.blank? %>
+    </div>
+    <%= call_hook(:view_issues_history_journal_bottom, { :journal => journal }) %>
+  <% else %>
+    <% if !journal.notes.blank? %>
+      <div id="change-<%= journal.id %>" class="journal">
+        <h4><div style="float:right;"><%= link_to "##{journal.indice}", :anchor => "note-#{journal.indice}" %></div>
+        <%= content_tag('a', '', :name => "note-#{journal.indice}")%>
+        <%= authoring journal.created_on, journal.user, :label => :label_updated_time_by %></h4>
+        <%= avatar(journal.user, :size => "32") %>
+        <%= render_notes(journal, :reply_links => reply_links) %>
+      </div>
+    <% end %>  
+  <% end %>
+<% end %>
