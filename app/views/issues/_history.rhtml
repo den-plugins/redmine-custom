@@ -2,8 +2,8 @@
 <% for journal in journals %>
   <% if (!journal.details.empty? && (!(journal.details[0].property.eql?('timelog')) || User.current.allowed_to?(:view_time_entries, @project))) %>
     <div id="change-<%= journal.id %>" class="journal">
-      <h4><!--<div style="float:right;"><%# link_to "##{journal.indice}", :anchor => "note-#{journal.indice}" %></div>
-      <%# content_tag('a', '', :name => "note-#{journal.indice}")%>-->
+      <h4><div style="float:right;"><a href="/issues/<%= @issue.id %>#note-<%= journal.indice %>">#<%= journal.indice %></a></div>
+      <%= content_tag('a', '', :name => "note-#{journal.indice}")%>
       <%= authoring journal.created_on, journal.user, :label => :label_updated_time_by %></h4>
       <%= avatar(journal.user, :size => "32") %>
       <ul>

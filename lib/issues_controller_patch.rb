@@ -13,12 +13,15 @@ module IssuesControllerPatch
     def show_with_limit_journals
       @journals = @issue.journals.find(:all, 
                                        :include => [:user, :details], 
-                                       :order => "#{Journal.table_name}.created_on ASC", 
+                                       :order => "#{Journal.table_name}.created_on #{User.current.wants_comments_in_reverse_order? ? 'DESC' : 'ASC'}", 
                                        :limit => 10,
                                        :offset => params[:offset].to_i)
       @total_journals = @issue.journals.count
-      @journals.each_with_index {|j,i| j.indice = i+1}
-      @journals.reverse! if User.current.wants_comments_in_reverse_order?
+      if User.current.wants_comments_in_reverse_order?
+        @journals.each_with_index {|j,i| j.indice = (@total_journals - params[:offset].to_i) - i}
+      else
+        @journals.each_with_index {|j,i| j.indice = (params[:offset].to_i + i)+1}
+      end
 		  if params[:offset].blank?
         @changesets = @issue.changesets
         @changesets.reverse! if User.current.wants_comments_in_reverse_order?
