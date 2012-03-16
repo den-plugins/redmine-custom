@@ -29,3 +29,5 @@ en:
   label_event_date: Day
   label_title: Title
   label_holiday_plural: Holidays
+  
+  status_archived: archived
