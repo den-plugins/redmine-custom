@@ -9,6 +9,7 @@ module Custom
         unloadable # Send unloadable so it will not be unloaded in development
         # additional account status
         const_set(:STATUS_ARCHIVED, 4)
+        named_scope :active_and_archived, :conditions => "#{User.table_name}.status = #{User::STATUS_ACTIVE} or #{User.table_name}.status = #{User::STATUS_ARCHIVED}"
       end
     end
     
