@@ -37,6 +37,8 @@
 
 <%= error_messages_for 'member' %>
 <%= content_tag "div", @errors, :class => "flash error" if @errors %>
+<%= content_tag "div", @notices, :class => "flash notice" if @notices %>
+
 <% roles = Role.find_all_givable
    members = @project.members.find(:all, :include => [:role, :user]).sort %>
 

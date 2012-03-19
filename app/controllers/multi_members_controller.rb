@@ -10,7 +10,10 @@ class MultiMembersController < MembersController
     @members.each do |member|
       @errors = member.errors.full_messages if !member.destroy and @errors.blank?
     end
-    @errors = nil if @errors.blank?
+    if @errors.blank?
+      @errors = nil
+      @notices = l(:notice_successful_delete)
+    end
 	  respond_to do |format|
       format.html { redirect_to :controller => 'projects', :action => 'settings', :tab => 'members', :id => @project }
       format.js { render(:update) {|page| page.replace_html "tab-content-members", :partial => 'projects/settings/members'} }
