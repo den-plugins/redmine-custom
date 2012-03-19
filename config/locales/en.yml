@@ -32,3 +32,4 @@ en:
   
   status_archived: archived
   notice_account_not_active: Account locked/archived
+  label_account_inactive: (inactive)
