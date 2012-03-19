@@ -11,18 +11,21 @@ module IssuesControllerPatch
 
   module InstanceMethods
     def show_with_limit_journals
+      @total_journals = @issue.journals.count
+      @journal_pages = IssuesController::Paginator.new self, @total_journals, 10, params['page']
+      offset = @journal_pages.current.offset
       @journals = @issue.journals.find(:all, 
                                        :include => [:user, :details], 
                                        :order => "#{Journal.table_name}.created_on #{User.current.wants_comments_in_reverse_order? ? 'DESC' : 'ASC'}", 
                                        :limit => 10,
-                                       :offset => params[:offset].to_i)
-      @total_journals = @issue.journals.count
+                                       :offset => offset)
+      
       if User.current.wants_comments_in_reverse_order?
-        @journals.each_with_index {|j,i| j.indice = (@total_journals - params[:offset].to_i) - i}
+        @journals.each_with_index {|j,i| j.indice = (@total_journals - offset) - i}
       else
-        @journals.each_with_index {|j,i| j.indice = (params[:offset].to_i + i)+1}
+        @journals.each_with_index {|j,i| j.indice = (offset + i)+1}
       end
-		  if params[:offset].blank?
+		  if params['page'].blank?
         @changesets = @issue.changesets
         @changesets.reverse! if User.current.wants_comments_in_reverse_order?
         @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
@@ -49,12 +52,7 @@ module IssuesControllerPatch
         end
       else
         render :update do |page|
-          page.insert_html :bottom, 'history_content', :partial => 'issues/history', :locals => { :journals => @journals }
-          if @total_journals > 10 and (params[:offset].to_i + 10) <= @total_journals
-            page.replace :show_more_lnk, "<a id=\"show_more_lnk\" onclick=\"new Ajax.Request('/issues/show?id=#{@issue.id}&offset=#{params[:offset].to_i + 10}', {asynchronous:true, evalScripts:true}); return false;\" href=\"#\">Show More</a>"
-          else
-            page.replace :show_more_lnk, ""
-          end
+          page.replace_html :history_content, :partial => 'issues/history', :locals => { :journals => @journals }
         end
       end
     end

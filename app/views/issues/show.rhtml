@@ -142,10 +142,6 @@ end %>
 <div id="history_content">
 <%= render :partial => 'issues/history', :locals => { :journals => @journals } %>
 </div>
-<% if @total_journals > 10 and (params[:offset].to_i + 10) <= @total_journals %>
-<h4></h4>
-<a id="show_more_lnk" onclick="new Ajax.Request('/issues/show?id=<%= @issue.id %>&offset=<%= params[:offset].to_i + 10 %>', {asynchronous:true, evalScripts:true}); return false;" href="#">Show More</a>
-<% end %>
 </div>
 <% end %>
 <div style="clear: both;"></div>
