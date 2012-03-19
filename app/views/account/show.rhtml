@@ -2,7 +2,7 @@
   <%= show_edit_link(@user) %>
 </div>
 
-<h2><%= avatar @user %> <%=h @user.name %></h2>
+<h2><%= avatar @user %> <%=h @user.name %> <%= l(:label_account_inactive) unless @user.active? %></h2>
 
 <div class="splitcontentleft">
 <ul>

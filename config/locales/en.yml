@@ -31,3 +31,5 @@ en:
   label_holiday_plural: Holidays
   
   status_archived: archived
+  notice_account_not_active: Account locked/archived
+  label_account_inactive: (inactive)
