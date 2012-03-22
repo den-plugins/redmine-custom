@@ -7,7 +7,7 @@ module Custom
       base.send(:include, InstanceMethods)
       base.class_eval do
         unloadable # Send unloadable so it will not be unloaded in development
-        
+        alias_method_chain :move_to, :copy
         attr_accessor :predefined_tasks, :old_status
         
         has_many :remaining_effort_entries, :dependent => :destroy
@@ -73,6 +73,49 @@ module Custom
           self.remaining_effort = 0
           self.save
         end
+      end
+      
+      def move_to_with_copy(new_project, new_tracker = nil, options = {})
+        options ||= {}
+        issue = options[:copy] ? self.clone : self
+        transaction do
+          if new_project && issue.project_id != new_project.id
+            # delete issue relations
+            unless Setting.cross_project_issue_relations?
+              issue.relations_from.clear
+              issue.relations_to.clear
+            end
+            # issue is moved to another project
+            # reassign to the category with same name if any
+            new_category = issue.category.nil? ? nil : new_project.issue_categories.find_by_name(issue.category.name)
+            issue.category = new_category
+            issue.fixed_version = nil
+            issue.affects_version = nil
+            issue.project = new_project
+          end
+          if new_tracker
+            issue.tracker = new_tracker
+          end
+          if options[:copy]
+            issue.custom_field_values = self.custom_field_values.inject({}) {|h,v| h[v.custom_field_id] = v.value; h}
+            issue.status = self.status
+            # reassign modified attribute-assignment methods
+            issue.acctg_type = self.acctg_type
+            issue.priority_id = self.priority_id
+            issue.estimated_hours = self.estimated_hours
+            issue.remaining_effort = self.remaining_effort
+          end
+          if issue.save
+            unless options[:copy]
+              # Manually update project_id on related time entries
+              TimeEntry.update_all("project_id = #{new_project.id}", {:issue_id => id})
+            end
+          else
+            Issue.connection.rollback_db_transaction
+            return false
+          end
+        end
+        return issue
       end
       
       def parent_issue
@@ -157,7 +200,7 @@ module Custom
           @task.project = Project.find(project_id)
           @task.tracker_id = 4
           @task.subject = @task.description = (task_subject + " - #{subject}")
-#          @task.description = @task.subject
+          #@task.description = @task.subject
           @task.fixed_version_id = fixed_version_id
           @task.status = IssueStatus.default
           @task.priority = Enumeration.find(4)
