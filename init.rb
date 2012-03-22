@@ -20,6 +20,7 @@ Dispatcher.to_prepare do
   Member.send(:include, Custom::MemberPatch)
   User.send(:include, Custom::UserPatch)
   Project.send(:include, Custom::ProjectPatch)
+  UsersController.send(:include, Custom::UsersControllerPatch)
   AccountController.send(:include,  AccountControllerPatch)
 end
 
