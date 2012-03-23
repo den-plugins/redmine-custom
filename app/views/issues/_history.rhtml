@@ -8,7 +8,7 @@
       <%= avatar(journal.user, :size => "32") %>
       <ul>
       <% for detail in journal.details %>
-        <% if (detail.property.eql?('timelog') && User.current.allowed_to?(:view_time_entries, @project)) || (!detail.property.eql?('timelog')) %>
+        <% if (!detail.property.eql?('timelog')) %>
           <li><%= show_detail(detail) %></li>
         <% end %>
       <% end %>

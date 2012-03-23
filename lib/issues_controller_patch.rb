@@ -13,12 +13,12 @@ module IssuesControllerPatch
     def show_with_limit_journals
       @total_journals = @issue.journals.count("journals.id", 
                                               :include => [:user, :details], 
-                                              :conditions => ["#{JournalDetail.table_name}.property <> 'timelog'"])
+                                              :conditions => ["#{JournalDetail.table_name}.property <> 'timelog' OR #{Journal.table_name}.notes is not null AND #{Journal.table_name}.notes <> ''"])
       @journal_pages = IssuesController::Paginator.new self, @total_journals, 10, params['page']
       offset = @journal_pages.current.offset
       @journals = @issue.journals.find(:all, 
                                        :include => [:user, :details],
-                                       :conditions => ["#{JournalDetail.table_name}.property <> 'timelog'"],
+                                       :conditions => ["#{JournalDetail.table_name}.property <> 'timelog' OR #{Journal.table_name}.notes is not null AND #{Journal.table_name}.notes <> ''"],
                                        :order => "#{Journal.table_name}.created_on #{User.current.wants_comments_in_reverse_order? ? 'DESC' : 'ASC'}", 
                                        :limit => 10,
                                        :offset => offset)
