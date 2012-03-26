@@ -8,16 +8,18 @@
   <p><strong><%=l(:label_parent)%></strong></p>
   <table style="width:100%">
   <tr>
-  <td><%= "(#{lwr(:actionview_datehelper_time_in_words_day, @issue.parent.delay)})" if @issue.parent.delay && @issue.parent.delay != 0 %> <%= link_to_issue @issue.parent.other_issue(@issue) %></td>
-  <td><%=h @issue.parent.other_issue(@issue).subject %></td>
-  <td><%= @issue.parent.other_issue(@issue).status.name %></td>
-  <%# NB: moved missing helper %>
-  <%version = @issue.fixed_version%>
-  <td><%= (version && version.is_a?(Version)) ? (link_to h(version.name), { :controller => 'versions', :action => 'show', :id => version }) : "-" %></td>
-  <td><%= format_date(@issue.parent.other_issue(@issue).start_date) %></td>
-  <td><%= format_date(@issue.parent.other_issue(@issue).due_date) %></td>
+    <% parent_issue = @issue.parent.other_issue(@issue) %>
+    <td><%= "(#{lwr(:actionview_datehelper_time_in_words_day, @issue.parent.delay)})" if @issue.parent.delay && @issue.parent.delay != 0 %> <%= link_to_issue @issue.parent.other_issue(@issue) %></td>
+    <td><%=h parent_issue.subject %></td>
+    <td><%= parent_issue.status.name %></td>
+    <% version = parent_issue.fixed_version %>
+    <td><%= (version && version.is_a?(Version)) ? (link_to h(version.name), { :controller => 'versions', :action => 'show', :id => version }) : "-" %></td>
+    <td><%= format_date(parent_issue.start_date) %></td>
+    <td><%= format_date(parent_issue.due_date) %></td>
   </tr>
-  <tr><td><%= image_tag('child.gif') %><%= link_to_issue @issue %></td></tr>
+  <tr>
+    <td><%= image_tag('child.gif') %><%= link_to_issue @issue %></td>
+  </tr>
   </table>
 <% end %>
 
