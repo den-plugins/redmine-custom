@@ -12,6 +12,7 @@ module Custom
         
         has_many :remaining_effort_entries, :dependent => :destroy
         before_save :remember_old_status, :if => "!children.empty?"
+        before_save :update_children_iterations, :if => "!children.empty? and fixed_version_id_changed?"
         after_save :is_closed_issue_effects, :if => :closed?
         after_save :update_parent_status, :if => :has_parent?
         after_save :closing_parent_status, :if => "closed? and !children.empty?"
@@ -41,6 +42,15 @@ module Custom
         end
         if parent_issue.save
           updated_on_will_change!
+        end
+      end
+      
+      def update_children_iterations
+        children.each do |child|
+          child.fixed_version = fixed_version
+          if child.save
+            updated_on_will_change!
+          end
         end
       end
 

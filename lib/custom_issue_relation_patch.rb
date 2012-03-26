@@ -6,12 +6,11 @@ module Custom
       base.extend(ClassMethods)
       base.send(:include, InstanceMethods)
       base.class_eval do
-        unloadable # Send unloadable so it will not be unloaded in development
-        after_save :update_parent_status, :if => :is_related_by_subtask?
+        unloadable
+        #after_save :update_parent_status, :if => :is_related_by_subtask?
+        #after_save :update_parent_effort, :if => :issue_task?
         after_destroy :update_parent_status_on_delete
         validate :validate_parentship
-        after_save :update_parent_effort, :if => :issue_task?
-
       end
     end
     
@@ -19,9 +18,18 @@ module Custom
     end
     
     module InstanceMethods
-      def update_parent_status
-        issue = Issue.find issue_to
-        issue.update_parent_status(issue_from) #if issue.not_parent?
+      def after_save
+        if is_related_by_subtask?
+          issue_to.update_parent_status(issue_from)
+          issue_to.fixed_version = issue_from.fixed_version
+          if issue_to.task?
+            # update parent efforts
+            issue_from.estimated_hours = 0
+            issue_from.remaining_effort = 0
+            issue_from.save
+          end
+          issue_to.save
+        end
       end
 
       def update_parent_status_on_delete
@@ -29,19 +37,8 @@ module Custom
         issue.update_parent_status(issue)
       end
       
-      def issue_task?
-        issue_to.task? and relation_type.eql? "subtasks" and issue_from
-      end
-      
       def is_related_by_subtask?
         relation_type.eql? "subtasks" and issue_from
-      end
-      
-      def update_parent_effort
-        issue = Issue.find(issue_from)
-        issue.estimated_hours = 0
-        issue.remaining_effort = 0
-        issue.save
       end
       
       def validate_parentship
@@ -57,6 +54,5 @@ module Custom
         end
       end
     end
-
   end
 end
