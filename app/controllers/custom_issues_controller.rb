@@ -50,8 +50,10 @@ class CustomIssuesController < IssuesController
       requested_status = IssueStatus.find_by_id(params[:issue][:status_id])
       # Check that the user is allowed to apply the requested status
       @issue.status = (@allowed_statuses.include? requested_status) ? requested_status : default_status
-
-      if @issue.save
+      unless @issue.assigned_to.nil?
+        @issue.errors.add_to_base "Cannot assign to resigned resource." if employee_status == "Resigned"
+      end
+      if @issue.errors.empty? && @issue.save
         if params[:relation]
           @relation = IssueRelation.new(params[:relation])
           if !params[:relation][:issue_from_id].blank?
@@ -165,8 +167,10 @@ class CustomIssuesController < IssuesController
         attachments.each {|a| journal.details << JournalDetail.new(:property => 'attachment', :prop_key => a.id, :value => a.filename)}
       
         call_hook(:controller_issues_edit_before_save, { :params => params, :issue => @issue, :time_entry => @time_entry, :journal => journal})
-
-        if (@time_entry.hours.nil? || @time_entry.valid?) && @issue.save
+        unless @issue.assigned_to.nil?
+          @issue.errors.add_to_base "Cannot assign to resigned resource." if employee_status == "Resigned"
+        end
+        if (@time_entry.hours.nil? || @time_entry.valid?) && @issue.errors.empty? && @issue.save
           # Log spend time
           if User.current.allowed_to?(:log_time, @project)
             @time_entry.save
@@ -265,11 +269,17 @@ class CustomIssuesController < IssuesController
                 [2]
               end
   end
+
   def custom_find_optional_project
     @project = Project.find(params[:project_id]) unless params[:project_id].blank?
     allowed = User.current.allowed_to?({:controller => 'issues', :action => params[:action]}, @project, :global => true)
     allowed ? true : deny_access
   rescue ActiveRecord::RecordNotFound
     render_404
+  end
+
+  def employee_status
+    r = @issue.assigned_to.custom_values.detect {|v| v.mgt_custom "Employee Status"}
+    status = r ? r.value : ""
   end
 end
