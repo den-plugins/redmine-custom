@@ -1,0 +1,48 @@
+#header {
+  height: auto;
+  padding: 0 0 0 0;
+  overflow: normal;
+}
+
+#header h1 {
+  margin-left: 160px;
+  margin-bottom: 15px;
+  left: auto;
+  right: auto;
+}
+
+#header a {
+  color: #ccc;
+}
+
+#quick-search {
+  font-size: 12px;
+  text-align: right;
+  width: 430px;
+}
+
+#main-menu {
+  border-left: 0 none;
+  border-right: 0 none;
+  margin: 0 0 0 0;
+  position: relative;
+  width: auto;
+}
+
+/* clearfix */
+#header, #main-menu {
+  zoom: 1;
+}
+
+#header:before, #header:after,
+#main-menu:before, #main-menu:after {
+	content: "\0020";
+	display: block;
+	height: 0;
+	overflow: hidden;
+}
+
+#header:after,
+#main-menu:after {
+	clear: both;
+}
