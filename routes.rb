@@ -9,6 +9,15 @@ map.with_options :controller => 'subtask' do |group_routes|
   end
 end
 
+map.with_options :controller => 'custom_users' do |users|
+  users.with_options :conditions => {:method => :get} do |user_views|
+    user_views.connect 'users/:id/edit/:tab', :action => 'edit', :tab => nil
+  end
+  users.with_options :conditions => {:method => :post} do |user_actions|
+    user_actions.connect 'users/:id/edit', :action => 'edit'
+  end
+end
+
 map.connect 'stories/:project_id/issues/new/', :controller => 'custom_issues', :action => 'new'
 map.connect 'projects/:project_id/issues/new/', :controller => 'custom_issues', :action => 'new'
 map.connect 'admin/holidays', :controller => 'holidays'
