@@ -179,7 +179,7 @@ class CustomIssuesController < IssuesController
               end
               total_hours += @time_entry.hours unless @time_entry.hours.nil?
 
-              issue_is_billable = true if Issue.find_by_id(@issue.id).accounting.id == Enumeration.find_by_name('Billable').id
+              issue_is_billable = true if @issue.acctg_type == Enumeration.find_by_name('Billable').id
               if @project.project_type.scan(/^(Admin)/).flatten.present?
                 if membership = @project.members.detect {|m| m.user_id == user.id}
                   user_is_member = true
