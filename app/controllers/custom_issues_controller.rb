@@ -140,6 +140,13 @@ class CustomIssuesController < IssuesController
   end
 
   def edit
+    total_hours = 0.0
+    user_is_member = false
+    rate = 0
+    issue_is_billable = false
+    accept_time_log = false
+    budget_consumed = false
+    user = User.current
     @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
     @priorities = Enumeration.priorities
     @accounting = Enumeration.accounting_types
@@ -165,14 +172,41 @@ class CustomIssuesController < IssuesController
         @time_entry.attributes = params[:time_entry]
         attachments = attach_files(@issue, params[:attachments])
         attachments.each {|a| journal.details << JournalDetail.new(:property => 'attachment', :prop_key => a.id, :value => a.filename)}
-      
+
+        @total_entries = user.time_entries.find(:all, :conditions => "spent_on = '#{@time_entry.spent_on}'")
+              @total_entries.each do |v|
+                total_hours += v.hours
+              end
+              total_hours += @time_entry.hours unless @time_entry.hours.nil?
+
+              issue_is_billable = true if Issue.find_by_id(@issue.id).accounting.id == Enumeration.find_by_name('Billable').id
+              if @project.project_type.scan(/^(Admin)/).flatten.present?
+                if membership = @project.members.detect {|m| m.user_id == user.id}
+                  user_is_member = true
+                  accept_time_log = true
+                end
+              else
+                if membership = @project.members.project_team.detect {|m| m.user_id == user.id}
+                  user_is_member = true
+                  billable_member = membership.billable?(@time_entry.spent_on, @time_entry.spent_on)
+                  accept_time_log = true if ((issue_is_billable && billable_member) || !issue_is_billable)
+                end
+              end
+
+              if display_by_billing_model.eql?("fixed")
+                budget_computation(@project.id)
+                if (@project_budget - @actuals_to_date) < 0 && issue_is_billable
+                  budget_consumed = true
+                end
+              end
+
         call_hook(:controller_issues_edit_before_save, { :params => params, :issue => @issue, :time_entry => @time_entry, :journal => journal})
         unless @issue.assigned_to.nil?
           @issue.errors.add_to_base "Cannot assign to resigned resource." if employee_status == "Resigned"
         end
         if (@time_entry.hours.nil? || @time_entry.valid?) && @issue.errors.empty? && @issue.save
           # Log spend time
-          if User.current.allowed_to?(:log_time, @project)
+          if User.current.allowed_to?(:log_time, @project) && total_hours <= 24 && user_is_member && accept_time_log && budget_consumed == false
             @time_entry.save
             if !@time_entry.hours.nil?
               journal.details << JournalDetail.new(:property => 'timelog', :prop_key => 'hours', :value => @time_entry.hours)
@@ -189,6 +223,11 @@ class CustomIssuesController < IssuesController
             if !@time_entry.hours.nil? || !journal.notes.blank?
               journal.save
             end
+          else
+            flash[:error] = "Cannot log more than 24 hours per day" unless total_hours <= 24
+            flash[:error] = "You are not allowed to log time to this task." unless accept_time_log
+            flash[:error] = "User is not a member of this project." unless user_is_member
+            flash[:error] = "Please log hours in a generic non-billable task." unless budget_consumed == false
           end
           if !journal.new_record?
             # Only send notification if something was actually changed
@@ -282,4 +321,41 @@ class CustomIssuesController < IssuesController
     r = @issue.assigned_to.custom_values.detect {|v| v.mgt_custom "Employee Status"}
     status = r ? r.value : ""
   end
+
+  def display_by_billing_model
+    if @project.billing_model
+      if @project.billing_model.scan(/^(Fixed)/).flatten.present?
+        "fixed"
+      elsif @project.billing_model.scan(/^(T and M)/i).flatten.present?
+        "billability"
+      end
+    end
+  end
+
+  def budget_computation(project_id)
+      project = Project.find(project_id)
+      bac_amount = project.project_contracts.all.sum(&:amount)
+      contingency_amount = 0
+      @actuals_to_date = 0
+      @project_budget = 0
+
+      pfrom, afrom, pto, ato = project.planned_start_date, project.actual_start_date, project.planned_end_date, project.actual_end_date
+      to = (ato || pto)
+
+      if pfrom && to
+        team = project.members.project_team.all
+        reporting_period = (Date.today-1.week).end_of_week
+        forecast_range = get_weeks_range(pfrom, to)
+        actual_range = get_weeks_range((afrom || pfrom), reporting_period)
+        cost = project.monitored_cost(forecast_range, actual_range, team)
+        actual_list = actual_range.collect {|r| r.first }
+        cost.each do |k, v|
+          if actual_list.include?(k.to_date)
+            @actuals_to_date += v[:actual_cost]
+          end
+        end
+        @project_budget = bac_amount + contingency_amount
+      end
+  end
+
 end
