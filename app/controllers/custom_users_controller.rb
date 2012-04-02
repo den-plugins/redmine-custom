@@ -19,7 +19,11 @@ class CustomUsersController < UsersController
       if @user.employee_status == "Resigned" and @user.resignation_date.blank? || @user.resignation_date.to_date > Date.today
         @user.errors.add_to_base "Please check employment end date."
       else
-        @user.custom_values.find_by_custom_field_id(23).update_attribute :value, "Resigned" unless @user.resignation_date.nil? && @user.resignation_date.to_date > Date.today
+        if !@user.resignation_date.empty? && !@user.resignation_date.nil?
+          if @user.resignation_date.to_date <= Date.today
+            @user.custom_values.find_by_custom_field_id(23).update_attribute :value, "Resigned"
+          end
+        end
         if @user.save
           Mailer.deliver_account_activated(@user) if was_activated
           flash[:notice] = l(:notice_successful_update)
