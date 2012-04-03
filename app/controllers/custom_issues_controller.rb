@@ -206,8 +206,17 @@ class CustomIssuesController < IssuesController
         end
         if (@time_entry.hours.nil? || @time_entry.valid?) && @issue.errors.empty? && @issue.save
           # Log spend time
-          if User.current.allowed_to?(:log_time, @project) && total_hours <= 24 && user_is_member && accept_time_log && budget_consumed == false
-            @time_entry.save
+          if User.current.allowed_to?(:log_time, @project)
+            unless @time_entry.hours.nil?
+              if total_hours <= 24 && user_is_member && accept_time_log && budget_consumed == false
+                @time_entry.save
+              else
+                flash[:error] = "Cannot log more than 24 hours per day" unless total_hours <= 24
+                flash[:error] = "You are not allowed to log time to this task." unless accept_time_log
+                flash[:error] = "User is not a member of this project." unless user_is_member
+                flash[:error] = "Please log hours in a generic non-billable task." unless budget_consumed == false
+              end
+            end
             if !@time_entry.hours.nil?
               journal.details << JournalDetail.new(:property => 'timelog', :prop_key => 'hours', :value => @time_entry.hours)
               journal.details << JournalDetail.new(:property => 'timelog', :prop_key => 'activity_id', :value => @time_entry.activity_id)
@@ -223,11 +232,6 @@ class CustomIssuesController < IssuesController
             if !@time_entry.hours.nil? || !journal.notes.blank?
               journal.save
             end
-          else
-            flash[:error] = "Cannot log more than 24 hours per day" unless total_hours <= 24
-            flash[:error] = "You are not allowed to log time to this task." unless accept_time_log
-            flash[:error] = "User is not a member of this project." unless user_is_member
-            flash[:error] = "Please log hours in a generic non-billable task." unless budget_consumed == false
           end
           if !journal.new_record?
             # Only send notification if something was actually changed
