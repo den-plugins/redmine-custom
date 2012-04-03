@@ -19,12 +19,12 @@ class CustomUsersController < UsersController
       if @user.employee_status == "Resigned" and @user.resignation_date.blank? || @user.resignation_date.to_date > Date.today
         @user.errors.add_to_base "Please check employment end date."
       else
-        if !@user.resignation_date.empty? && !@user.resignation_date.nil?
-          if @user.resignation_date.to_date <= Date.today
-            @user.custom_values.find_by_custom_field_id(23).update_attribute :value, "Resigned"
-          end
-        end
         if @user.save
+          if !@user.resignation_date.empty? && !@user.resignation_date.nil?
+            if @user.resignation_date.to_date <= Date.today
+              @user.custom_values.find_by_custom_field_id(23).update_attribute :value, "Resigned"
+            end
+          end
           Mailer.deliver_account_activated(@user) if was_activated
           flash[:notice] = l(:notice_successful_update)
           # Give a string to redirect_to otherwise it would use status param as the response code
