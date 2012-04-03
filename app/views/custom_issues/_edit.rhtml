@@ -1,0 +1,66 @@
+<% labelled_tabular_form_for :issue, @issue,
+                             :url => {:action => 'edit', :id => @issue},
+                             :html => {:id => 'issue-form',
+                                       :class => nil,
+                                       :multipart => true} do |f| %>
+    <%= error_messages_for 'issue' %>
+    <%= error_messages_for 'time_entry' %>
+    <div class="box">
+    <% if @edit_allowed || !@allowed_statuses.empty? %>
+        <fieldset class="tabular"><legend><%= l(:label_change_properties) %>
+        <% if !@issue.new_record? && !@issue.errors.any? && @edit_allowed %>
+        <small>(<%= link_to l(:label_more), {}, :onclick => 'Effect.toggle("issue_descr_fields", "appear", {duration:0.3}); return false;' %>)</small>
+        <% end %>
+        </legend>
+        <%= render :partial => (@edit_allowed ? 'form' : 'form_update'), :locals => {:f => f} %>
+        </fieldset>
+    <% end %>
+    <% if authorize_for('timelog', 'edit') %>
+        <fieldset class="tabular"><legend><%= l(:button_log_time) %></legend>
+        <% fields_for :time_entry, @time_entry, { :builder => TabularFormBuilder, :lang => current_language} do |time_entry| %>
+        <div class="splitcontentleft">
+        <p><%= time_entry.text_field :hours, :size => 6, :label => :label_spent_time %> <%= l(:field_hours) %></p>
+        <p><strong>* Hours and minutes:</strong> 1h, 1 h, 1 hour, 2 hours, 30m, 30min, 1h30, 1h30m, 1:30<br />
+           <strong>* Hours as decimal:</strong> 1.5, 1,5 (equals to 1h30m)</p>
+        </div>
+        <div class="splitcontentright">
+        <p><%= time_entry.select :activity_id, activity_collection_for_select_options %></p>
+        </div>
+        <p><%= time_entry.text_area :comments, :cols => 50, :rows => 5, :class => 'wiki-edit' %></p>
+        <%= wikitoolbar_for 'time_entry_comments' %>
+        <% @time_entry.custom_field_values.each do |value| %>
+        	<p><%= custom_field_tag_with_label :time_entry, value %></p>
+        <% end %>
+        <% end %>
+    </fieldset>
+    <% end %>
+
+    <% if @edit_allowed %>
+        <fieldset><legend><%= l(:field_notes) %></legend>
+        <%= text_area_tag 'notes', @notes, :cols => 60, :rows => 10, :class => 'wiki-edit' %>
+        <%= wikitoolbar_for 'notes' %>
+        <%= call_hook(:view_issues_edit_notes_bottom, { :issue => @issue, :notes => @notes, :form => f }) %>
+
+        <p><%=l(:label_attachment_plural)%><br /><%= render :partial => 'attachments/form' %></p>
+        </fieldset>
+    <% end %>
+    <% if @project.show_update_option %>
+      <div>
+        <strong><%= l('label_update_options') %></strong>
+        <%= select_tag("selected_update", options_for_select(@update_options, 1)) %>
+      </div>
+    <% end %>
+    </div>
+
+    <%= f.hidden_field :lock_version %>
+    <%= submit_tag l(:button_submit) %>
+    <%= link_to_remote l(:label_preview),
+                       { :url => { :controller => 'issues', :action => "preview", :project_id => @project, :id => @issue,:user_action=>"update" },
+                         :method => 'post',
+                         :update => 'preview',
+                         :with => 'Form.serialize("issue-form")',
+                         :complete => "Element.scrollTo('preview')"
+                       }, :accesskey => accesskey(:preview) %>
+<% end %>
+
+<div id="preview" class="wiki"></div>
