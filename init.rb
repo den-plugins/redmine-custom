@@ -10,6 +10,7 @@ require 'issues_controller_patch'
 require 'custom_member_patch'
 require 'custom_user_patch'
 require 'custom_project_patch'
+require 'custom_time_entry_patch'
 require 'account_controller_patch'
 
 Dispatcher.to_prepare do
@@ -20,6 +21,7 @@ Dispatcher.to_prepare do
   Member.send(:include, Custom::MemberPatch)
   User.send(:include, Custom::UserPatch)
   Project.send(:include, Custom::ProjectPatch)
+  TimeEntry.send(:include, Custom::TimeEntryPatch)
   UsersController.send(:include, Custom::UsersControllerPatch)
   AccountController.send(:include,  AccountControllerPatch)
 end

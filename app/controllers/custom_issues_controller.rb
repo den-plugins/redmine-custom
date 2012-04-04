@@ -172,34 +172,6 @@ class CustomIssuesController < IssuesController
         @time_entry.attributes = params[:time_entry]
         attachments = attach_files(@issue, params[:attachments])
         attachments.each {|a| journal.details << JournalDetail.new(:property => 'attachment', :prop_key => a.id, :value => a.filename)}
-
-        @total_entries = user.time_entries.find(:all, :conditions => "spent_on = '#{@time_entry.spent_on}'")
-              @total_entries.each do |v|
-                total_hours += v.hours
-              end
-              total_hours += @time_entry.hours unless @time_entry.hours.nil?
-
-              issue_is_billable = true if @issue.acctg_type == Enumeration.find_by_name('Billable').id
-              if @project.project_type.scan(/^(Admin)/).flatten.present?
-                if membership = @project.members.detect {|m| m.user_id == user.id}
-                  user_is_member = true
-                  accept_time_log = true
-                end
-              else
-                if membership = @project.members.project_team.detect {|m| m.user_id == user.id}
-                  user_is_member = true
-                  billable_member = membership.billable?(@time_entry.spent_on, @time_entry.spent_on)
-                  accept_time_log = true if ((issue_is_billable && billable_member) || !issue_is_billable)
-                end
-              end
-
-              if display_by_billing_model.eql?("fixed")
-                budget_computation(@project.id)
-                if (@project_budget - @actuals_to_date) < 0 && issue_is_billable
-                  budget_consumed = true
-                end
-              end
-
         call_hook(:controller_issues_edit_before_save, { :params => params, :issue => @issue, :time_entry => @time_entry, :journal => journal})
         unless @issue.assigned_to.nil?
           @issue.errors.add_to_base "Cannot assign to resigned resource." if employee_status == "Resigned"
@@ -207,16 +179,7 @@ class CustomIssuesController < IssuesController
         if (@time_entry.hours.nil? || @time_entry.valid?) && @issue.errors.empty? && @issue.save
           # Log spend time
           if User.current.allowed_to?(:log_time, @project)
-            unless @time_entry.hours.nil?
-              if total_hours <= 24 && user_is_member && accept_time_log && budget_consumed == false
-                @time_entry.save
-              else
-                flash[:error] = "Cannot log more than 24 hours per day" unless total_hours <= 24
-                flash[:error] = "You are not allowed to log time to this task." unless accept_time_log
-                flash[:error] = "User is not a member of this project." unless user_is_member
-                flash[:error] = "Please log hours in a generic non-billable task." unless budget_consumed == false
-              end
-            end
+            @time_entry.save
             if !@time_entry.hours.nil?
               journal.details << JournalDetail.new(:property => 'timelog', :prop_key => 'hours', :value => @time_entry.hours)
               journal.details << JournalDetail.new(:property => 'timelog', :prop_key => 'activity_id', :value => @time_entry.activity_id)
