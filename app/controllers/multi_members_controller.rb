@@ -40,21 +40,24 @@ class MultiMembersController < MembersController
       attrs = params[:member].dup
       if (user_ids = attrs.delete(:user_ids))
         user_ids.each do |user_id|
-          unless User.find_by_login(attrs[:user_login]).employee_status == 'Resigned'
+          resource = User.find_by_login(attrs[:user_login])
+          unless resource.employee_status == 'Resigned'
             members << Member.new(attrs.merge(:user_id => user_id))
           else
-            resigned_members << name(attrs[:user_login], 'login')
+            resigned_members << name(resource)
             attrs[:user_login] = ""
             members << Member.new(attrs.merge(:user_id => user_id))
           end
-          members.each { |member| if User.find(member.user_id).employee_status == 'Resigned'
+          members.each { |member| resource = User.find(member.user_id)
+                                  if resource.employee_status == 'Resigned'
                                     members.delete(member)
-                                    resigned_members << name(member.user_id, 'id')
+                                    resigned_members << name(resource)
                                   end}
         end
       else
-        if User.find_by_login(attrs[:user_login]).employee_status == 'Resigned'
-          resigned_members << name(attrs[:user_login], 'login')
+        resource = User.find_by_login(attrs[:user_login])
+        if resource.employee_status == 'Resigned'
+          resigned_members << name(resource)
           attrs[:user_login] = ""
         end
         members << Member.new(attrs)
@@ -74,15 +77,8 @@ class MultiMembersController < MembersController
   end
 
   private
-  def name(user_identifier, type)
-    if type == "id"
-      lastname = User.find(user_identifier).lastname
-      firstname = User.find(user_identifier).firstname
-    else
-      lastname = User.find_by_login(user_identifier).lastname
-      firstname = User.find_by_login(user_identifier).firstname
-    end
-    "#{firstname} #{lastname}"
+  def name(resource)
+    "#{resource.firstname} #{resource.lastname}"
   end
 
 end
