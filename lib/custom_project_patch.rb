@@ -18,6 +18,9 @@ module Custom
     end
     
     module InstanceMethods
+      def admin?
+        !!project_type.to_s.downcase['admin']
+      end
     end
   end
 end
