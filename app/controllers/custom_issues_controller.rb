@@ -233,7 +233,7 @@ class CustomIssuesController < IssuesController
               journal.save
             end
           end
-          if !journal.new_record?
+          if !journal.new_record? && flash[:error].nil?
             # Only send notification if something was actually changed
             flash[:notice] = l(:notice_successful_update)
           end
