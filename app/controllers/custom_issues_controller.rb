@@ -336,32 +336,35 @@ class CustomIssuesController < IssuesController
     @user_is_member = false
     @accept_time_log = false
     @budget_consumed = false
+
     @total_entries = user.time_entries.find(:all, :conditions => "spent_on = '#{@time_entry.spent_on}'")
-          @total_entries.each do |v|
-            @total_hours += v.hours
-          end
-          @total_hours += @time_entry.hours unless @time_entry.hours.nil?
+    @total_entries.each do |v|
+      @total_hours += v.hours
+    end
+    @total_hours += @time_entry.hours unless @time_entry.hours.nil?
 
-          issue_is_billable = true if @issue.acctg_type == Enumeration.find_by_name('Billable').id
-          if @project.project_type.scan(/^(Admin)/).flatten.present?
-            if membership = @project.members.detect {|m| m.user_id == user.id}
-              @user_is_member = true
-              @accept_time_log = true
-            end
-          else
-            if membership = @project.members.project_team.detect {|m| m.user_id == user.id}
-              @user_is_member = true
-              billable_member = membership.billable?(@time_entry.spent_on, @time_entry.spent_on)
-              @accept_time_log = true if ((issue_is_billable && billable_member) || !issue_is_billable)
-            end
-          end
+    issue_is_billable = true if @issue.acctg_type == Enumeration.find_by_name('Billable').id
+    if @project.project_type.scan(/^(Admin)/).flatten.present?
+      if membership = @project.members.detect {|m| m.user_id == user.id}
+        @user_is_member = true
+        @accept_time_log = true
+      end
+    else
+      if membership = @project.members.project_team.detect {|m| m.user_id == user.id}
+        @user_is_member = true
+        billable_member = membership.billable?(@time_entry.spent_on, @time_entry.spent_on)
+        non_billable_member = membership.non_billable?(@time_entry.spent_on)
+        shadow_member = membership.is_shadowed?(@time_entry.spent_on)
+        @accept_time_log = true if ((issue_is_billable && billable_member) || (!issue_is_billable && non_billable_member) || (!issue_is_billable && shadow_member))
+      end
+    end
 
-          if display_by_billing_model.eql?("fixed")
-            budget_computation(@project.id)
-            if (@project_budget - @actuals_to_date) < 0 && issue_is_billable
-              @budget_consumed = true
-            end
-          end
+    if display_by_billing_model.eql?("fixed")
+      budget_computation(@project.id)
+      if (@project_budget - @actuals_to_date) < 0 && issue_is_billable
+        @budget_consumed = true
+      end
+    end
   end
 
 end
