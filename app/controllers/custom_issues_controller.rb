@@ -173,7 +173,7 @@ class CustomIssuesController < IssuesController
         if (@time_entry.hours.nil? || @time_entry.valid?) && @issue.errors.empty? && @issue.save
           # Log spend time
           if User.current.allowed_to?(:log_time, @project)
-            unless @time_entry.hours.nil?
+            if !@time_entry.hours.nil? && !@time_entry.hours.eql?(0.0)
               time_log_validation
               if @total_hours <= 24 && @user_is_member && @accept_time_log && @budget_consumed == false
                 @time_entry.save
