@@ -4,7 +4,7 @@ class HolidaysController < ApplicationController
   before_filter :get_holiday, :only => [:update, :destroy]
 
   def index
-    @holiday = Holiday.all
+    @holiday = Holiday.all :order => 'event_date'
   end
 
   def add
