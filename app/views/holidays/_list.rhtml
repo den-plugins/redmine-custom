@@ -1,7 +1,7 @@
 <table id="risks" class="list" style='text-align: center; '>
   <thead>
     <tr class='risks_header'>
-	<th><%= l(:label_event_date) %></th>
+    <%= sort_header_tag('event_date', :caption => l(:label_event_date)) %>
 	<th><%= l(:label_title)%></th>
 	<th><%= l(:label_description)%></th>
 	<th><%= l(:label_location)%></th>
@@ -25,3 +25,7 @@
     </tr>
   <% end %>
 </table>
+
+<script type="text/javascript">
+  jQuery('#ajax-indicator').hide();
+</script>
