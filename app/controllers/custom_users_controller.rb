@@ -22,7 +22,8 @@ class CustomUsersController < UsersController
         if @user.save
           if !@user.resignation_date.empty? && !@user.resignation_date.nil?
             if @user.resignation_date.to_date < Date.today
-              @user.custom_values.find_by_custom_field_id(23).update_attribute :value, "Resigned"
+              employee_status_field_id = CustomField.find_by_name("Employee Status")
+              @user.custom_values.find_by_custom_field_id(employee_status_field_id).update_attribute :value, "Resigned"
             end
           end
           Mailer.deliver_account_activated(@user) if was_activated
