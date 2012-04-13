@@ -193,6 +193,9 @@ class CustomIssuesController < IssuesController
           if !journal.new_record? && flash[:error].nil?
             # Only send notification if something was actually changed
             flash[:notice] = l(:notice_successful_update)
+            if User.current == @issue.assigned_to
+              update_session_params @issue
+            end
           end
           call_hook(:controller_issues_edit_after_save, { :params => params, :issue => @issue, :time_entry => @time_entry, :journal => journal})
           if update_ticket_at_mystic?
@@ -268,6 +271,14 @@ class CustomIssuesController < IssuesController
               else
                 [2]
               end
+  end
+  
+  def update_session_params(issue)
+     if issue.project.project_type.to_s !~ /admin/i && issue.project.name !~ /admin/i
+       session[:project_issue_ids].push(issue.id).uniq!
+     else
+       session[:non_project_issue_ids].push(issue.id).uniq!
+     end
   end
 
   def custom_find_optional_project
