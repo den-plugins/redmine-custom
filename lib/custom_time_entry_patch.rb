@@ -17,26 +17,29 @@ module Custom
     module InstanceMethods
       def revalidate
         # user not allowed to log more than 24 hours
-        if hours.present? and activity.present?
+        if hours.present?
           total_hours = user.time_entries.select {|e| e.spent_on.eql?(spent_on) }.sum(&:hours)
-          total_hours += hours
-          errors.add_to_base "Cannot log more than 24 hours per day" unless total_hours <= 24
+          if hours_changed?
+            old_entry, new_entry = changes['hours']
+            total_hours += (new_entry.to_f - old_entry.to_f)
+          end
+          errors.add_to_base l(:error_timelog_24hr_limit) unless total_hours <= 24
           # check accounting_type of project
           issue_is_billable = (issue.acctg_type == Enumeration.find_by_name('Billable').id) ? true : false
           # user not allowed to log if not a member of project
           if project.project_type.scan(/^(Admin)/).flatten.present?
             unless project.members.detect {|m| m.user_id == user_id}
-              errors.add_to_base "User is not a member of this project."
-              errors.add_to_base "You are not allowed to log time to this task."
+              errors.add_to_base l(:error_timelog_project_membership)
+              errors.add_to_base l(:error_timelog_project_allocation)
             end
           else
             if membership=project.members.project_team.detect {|m| m.user_id == user_id}
               member_is_billable = membership.billable?(spent_on, spent_on)
               allocated = membership.allocated?(spent_on)
-              errors.add_to_base "You are not allowed to log time to this task." unless (issue_is_billable && member_is_billable && allocated) || (!issue_is_billable && allocated)
+              errors.add_to_base l(:error_timelog_project_allocation) unless (issue_is_billable && member_is_billable && allocated) || (!issue_is_billable && allocated)
             else
-              errors.add_to_base "User is not a member of this project."
-              errors.add_to_base "You are not allowed to log time to this task."
+              errors.add_to_base l(:error_timelog_project_membership)
+              errors.add_to_base l(:error_timelog_project_allocation)
             end
           end
           # user is not allowed to log if project is fixed bid and budget is consumed
@@ -68,7 +71,7 @@ module Custom
           project_budget = bac_amount + contingency_amount
         end
         if (project_budget - actuals_to_date) < 0 && issue.acctg_type == Enumeration.find_by_name('Billable').id
-          errors.add_to_base "Please log hours in a generic non-billable task."
+          errors.add_to_base l(:error_timelog_budget_consumed)
         end
       end
     end
