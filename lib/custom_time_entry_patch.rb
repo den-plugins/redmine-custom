@@ -32,9 +32,8 @@ module Custom
           else
             if membership=project.members.project_team.detect {|m| m.user_id == user_id}
               member_is_billable = membership.billable?(spent_on, spent_on)
-              member_is_non_billable = membership.non_billable?(spent_on)
-              member_is_shadow = membership.is_shadowed?(spent_on)
-              errors.add_to_base "You are not allowed to log time to this task." unless ((issue_is_billable && member_is_billable) || (!issue_is_billable && member_is_non_billable) || (!issue_is_billable && member_is_shadow))
+              allocated = membership.allocated?(spent_on)
+              errors.add_to_base "You are not allowed to log time to this task." unless (issue_is_billable && member_is_billable && allocated) || (!issue_is_billable && allocated)
             else
               errors.add_to_base "User is not a member of this project."
               errors.add_to_base "You are not allowed to log time to this task."
