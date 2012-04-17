@@ -11,6 +11,7 @@ require 'custom_member_patch'
 require 'custom_user_patch'
 require 'custom_project_patch'
 require 'account_controller_patch'
+require 'delayed/scheduled_job'
 
 Dispatcher.to_prepare do
   Issue.send(:include, Custom::IssuePatch)
