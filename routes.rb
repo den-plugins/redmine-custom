@@ -27,4 +27,6 @@ map.with_options :controller => 'custom_issues' do |issues_routes|
    issues_routes.with_options :conditions => {:method => :post} do |issues_actions|
      issues_actions.connect 'issues/:id/:action', :action => /edit/, :id => /\d+/
    end
- end
+end
+
+map.connect 'projects/:id/members/new', :controller => 'multi_members', :action => 'new'

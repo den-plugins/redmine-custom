@@ -3,8 +3,14 @@ class HolidaysController < ApplicationController
   before_filter :require_login
   before_filter :get_holiday, :only => [:update, :destroy]
 
+  helper :sort
+  include SortHelper
+
   def index
-    @holiday = Holiday.all
+    sort_init 'event_date'
+    sort_update	'event_date'
+    @holiday = Holiday.all :order => sort_clause
+    render :action => 'index', :layout => !request.xhr?
   end
 
   def add
@@ -40,7 +46,7 @@ class HolidaysController < ApplicationController
       redirect_to_holidays
     end
   end
-    
+
   private
   
   def get_holiday
