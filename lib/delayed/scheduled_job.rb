@@ -14,9 +14,11 @@ module Delayed
       schedule! # only schedule if job did not raise
     end
 
-    # schedule this "repeating" job unless already scheduled
+    # schedule this "repeating" job
     def schedule!(run_at = nil)
       run_at ||= self.class.run_at
+      ideal_schedule = Time.parse("12am") + 1.day
+      run_at = ideal_schedule if run_at.nil? or (run_at and (Time.parse("12am") - run_at).zero?)
       Delayed::Job.enqueue(self, 0, run_at) unless self.class.scheduled?(self.to_yaml)
     end
 
@@ -56,7 +58,8 @@ module Delayed
       end
 
       def scheduled?(handler = nil)
-        Delayed::Job.find(:all, :conditions => ["handler = ? and run_at = ?", "#{handler}", run_interval]).count > 0
+        Delayed::Job.find(:all,
+          :conditions => ["handler = ? and run_at = ? and locked_at IS NULL", "#{handler}", run_interval]).count > 0
       end
 
     end
