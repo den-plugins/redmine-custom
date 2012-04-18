@@ -54,7 +54,6 @@ class CustomIssuesController < IssuesController
         @issue.errors.add_to_base "Cannot assign to resigned resource." if employee_status == "Resigned"
       end
       if @issue.errors.empty? && @issue.save
-        session[:project_issue_ids], session[:non_project_issue_ids] = @issue.update_session_params(session[:project_issue_ids], session[:non_project_issue_ids])
         if params[:relation]
           @relation = IssueRelation.new(params[:relation])
           if !params[:relation][:issue_from_id].blank?
@@ -172,7 +171,6 @@ class CustomIssuesController < IssuesController
           @issue.errors.add_to_base "Cannot assign to resigned resource." if employee_status == "Resigned"
         end
         if (@time_entry.hours.nil? || @time_entry.valid?) && @issue.errors.empty? && @issue.save
-          session[:project_issue_ids], session[:non_project_issue_ids] = @issue.update_session_params(session[:project_issue_ids], session[:non_project_issue_ids])
           # Log spend time
           if User.current.allowed_to?(:log_time, @project)
             @time_entry.save
