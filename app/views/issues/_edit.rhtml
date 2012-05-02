@@ -45,7 +45,7 @@
         </fieldset>
     <% end %>
     <% if @project.show_update_option %>
-      <div>
+      <div style="padding: 13px 0 8px 0">
         <strong><%= l('label_update_options') %></strong>
         <%= select_tag("selected_update", options_for_select(@update_options, 1)) %>
       </div>
