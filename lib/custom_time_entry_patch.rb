@@ -73,7 +73,7 @@ module Custom
           end
           #include current time entry's amount
           member = team.detect{|m| m.user_id == user_id}
-          actuals_to_date += hours * member.internal_rate
+          actuals_to_date += hours.to_f * member.internal_rate.to_f
           errors.add_to_base l(:error_timelog_budget_consumed) if (project_budget - actuals_to_date) < 0
         end
       end
