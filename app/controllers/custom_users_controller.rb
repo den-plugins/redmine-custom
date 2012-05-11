@@ -29,7 +29,7 @@ class CustomUsersController < UsersController
           Mailer.deliver_account_activated(@user) if was_activated
           flash[:notice] = l(:notice_successful_update)
           # Give a string to redirect_to otherwise it would use status param as the response code
-          redirect_to(url_for(:action => 'list', :status => params[:status], :page => params[:page]))
+          redirect_to(url_for(:controller => 'users', :action => 'list', :status => params[:status], :page => params[:page]))
         end
       end
     end

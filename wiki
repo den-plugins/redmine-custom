@@ -1,0 +1,47 @@
+== REDMINE CUSTOM plugin
+
+- redmine plugin for core changes
+
+
+== ISSUE
+  = remaining effort
+      - issue can have a remaining effort a day
+      - remaining effort is set 0 if issue is closed
+      - estimated effort = remaining effort if estimated effort is not set and remaining effort is set
+      - remaining effort = estimated effort if estimated effort is set and remaining effort is not
+  = release/iteration(previously 'version')
+      - subtasks must be under the same iteration as parent task
+  = predefined tasks
+      - if an issue is a feature, it can add predefined tasks as subtasks
+      - list of predefined tasks:
+          "Requirements analysis",
+          "Analysis of Use case docs",
+          "QA testing",
+          "Coding",
+          "Functional Validation",
+          "Code Review",
+          "Unit testing",
+          "Defect analysis and fixing",
+          "Test Case Creation",
+          "Integration"
+      - additional defaults for predefined tasks:
+          - tracker: Task
+          - subject: parent_task_subject - predefined_task_subject
+  = status
+      - cannot close parent task if not all subtasks are closed
+      - parent task status => subtasks status
+          - in progress => new, assigned, reopened, open
+          - closed => closed (all is_closed == true)
+          - new => open statuses (except in in-progress)
+
+== ISSUE RELATION
+== MEMBER
+== PROJECT
+== TIME ENTRY
+== USER
+== VERSION
+
+
+== ACCOUNT CONTROLLER
+== ISSUES CONTROLLER
+== USERS CONTROLLER
