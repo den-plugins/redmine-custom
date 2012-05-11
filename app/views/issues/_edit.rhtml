@@ -9,7 +9,7 @@
     <% if @edit_allowed || !@allowed_statuses.empty? %>
         <fieldset class="tabular"><legend><%= l(:label_change_properties) %>
         <% if !@issue.new_record? && !@issue.errors.any? && @edit_allowed %>
-        <small>(<%= link_to l(:label_more), {}, :onclick => 'Effect.toggle("issue_descr_fields", "appear", {duration:0.3}); return false;' %>)</small>
+          <small>(<%= link_to l(:label_more), {}, :onclick => 'Effect.toggle("issue_descr_fields", "appear", {duration:0.3}); return false;', :style=>'font-size:12px; text-decoration:underline; font-weight:bold;' %>)</small>
         <% end %>
         </legend>
         <%= render :partial => (@edit_allowed ? 'issues/form' : 'issues/form_update'), :locals => {:f => f} %>
