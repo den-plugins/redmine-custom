@@ -11,6 +11,9 @@ else
 end %>
 <%= watcher_tag(@issue, User.current) %>
 <%= link_to_if_authorized l(:button_copy), {:controller => 'issues', :action => 'new', :project_id => @project, :copy_from => @issue }, :class => 'icon icon-copy' %>
+<% if @issue.feature? and @issue.children.any? %>
+  <%= link_to_if_authorized l(:button_split), {:controller => 'treeview', :action => 'split', :project_id => @project, :id => @issue} , :class => 'icon icon-split' %>
+<% end %>
 <%= link_to_if_authorized l(:button_move), {:controller => 'issues', :action => 'move', :id => @issue }, :class => 'icon icon-move' %>
 <%= link_to l(:button_delete), {:controller => 'custom_issues', :action => 'destroy', :id => @issue}, :confirm => l(:text_are_you_sure), :method => :post, :class => 'icon icon-del' if authorize_for('issues', 'destroy') %><br />
 </div>
