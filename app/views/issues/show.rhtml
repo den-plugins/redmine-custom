@@ -12,7 +12,7 @@ end %>
 <%= watcher_tag(@issue, User.current) %>
 <%= link_to_if_authorized l(:button_copy), {:controller => 'issues', :action => 'new', :project_id => @project, :copy_from => @issue }, :class => 'icon icon-copy' %>
 <% if @issue.feature? and @issue.children.any? %>
-  <%= link_to_if_authorized l(:button_split), {:controller => 'treeview', :action => 'split', :project_id => @project, :id => @issue} , :class => 'icon icon-split' %>
+  <%= facebox_link_to l(:button_split), {:url => {:controller => 'treeview', :action => 'split', :project_id => @project, :id => @issue}} , :class => 'icon icon-split' %>
 <% end %>
 <%= link_to_if_authorized l(:button_move), {:controller => 'issues', :action => 'move', :id => @issue }, :class => 'icon icon-move' %>
 <%= link_to l(:button_delete), {:controller => 'custom_issues', :action => 'destroy', :id => @issue}, :confirm => l(:text_are_you_sure), :method => :post, :class => 'icon icon-del' if authorize_for('issues', 'destroy') %><br />
@@ -170,4 +170,15 @@ end %>
 <% content_for :header_tags do %>
     <%= auto_discovery_link_tag(:atom, {:format => 'atom', :key => User.current.rss_key}, :title => "#{@issue.project} - #{@issue.tracker} ##{@issue.id}: #{@issue.subject}") %>
     <%= stylesheet_link_tag 'scm' %>
+    <%= auto_discovery_link_tag(:atom, {:query_id => @query, :format => 'atom', :page => nil, :key => User.current.rss_key}, :title => l(:label_issue_plural)) %>
+    <%= auto_discovery_link_tag(:atom, {:action => 'changes', :query_id => @query, :format => 'atom', :page => nil, :key => User.current.rss_key}, :title => l(:label_changes_details)) %>
+    <%= javascript_include_tag 'context_menu' %>
+    <%= stylesheet_link_tag 'context_menu' %>
+    <%= stylesheet_link_tag 'treeview', :plugin => 'redmine_treeview' %>
+    <%= javascript_include_tag 'jquery', :plugin => 'pm_dashboard' %>
+    <%= javascript_include_tag 'jquery.treeTable.js', :plugin => 'redmine_treeview' %>
+    <%= javascript_include_tag 'treeview', :plugin => 'redmine_treeview' %>
+    <%= stylesheet_link_tag 'facebox', :plugin => 'facebox_render' %>
+    <%= javascript_include_tag 'facebox.js', :plugin => 'facebox_render' %>
+    <%= javascript_include_tag 'split.js', :plugin => 'redmine_treeview' %>
 <% end %>
