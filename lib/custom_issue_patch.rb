@@ -48,8 +48,16 @@ module Custom
       def update_children_iterations
         children.each do |child|
           child.fixed_version = fixed_version
+          begin
           if child.save
             updated_on_will_change!
+          end
+          rescue ActiveRecord::StaleObjectError
+            child.reload
+            child.fixed_version = fixed_version
+            if child.save
+              updated_on_will_change!
+            end
           end
         end
       end
