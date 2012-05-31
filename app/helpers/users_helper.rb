@@ -18,8 +18,8 @@ module UsersHelper
     elsif user.registered?
       link_to l(:button_activate), url.merge(:user => {:status => User::STATUS_ACTIVE}), :method => :post, :class => 'icon icon-unlock small'
     elsif user != User.current
-      link_to(l(:button_lock), url.merge(:user => {:status => User::STATUS_LOCKED}), :method => :post, :class => 'icon icon-lock small') +
-      content_tag("span", "&nbsp;/ ", :style => "font-size: 15px;") +
+      #link_to(l(:button_lock), url.merge(:user => {:status => User::STATUS_LOCKED}), :method => :post, :class => 'icon icon-lock small') +
+      #content_tag("span", "&nbsp;/ ", :style => "font-size: 15px;") +
       link_to(l(:button_archive), url.merge(:user => {:status => User::STATUS_ARCHIVED}), :method => :post, :class => 'icon icon-lock small')
     end
   end
