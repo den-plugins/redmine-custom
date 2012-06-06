@@ -239,9 +239,20 @@ module Custom
         time_entries.empty? and !closed? and remaining_effort == estimated_hours and children_transferable?
       end
 
+      def can_be_carried_over?
+        !time_entries.empty? and !closed? and remaining_effort != 0 and children_carried_over?
+      end
+
       def children_transferable?
         res = true
         temp = children.map(&:is_transferable?)
+        res = false if (!temp.blank? && temp.include?(false))
+        res
+      end
+
+      def children_carried_over?
+        res = true
+        temp = children.map(&:can_be_carried_over?)
         res = false if (!temp.blank? && temp.include?(false))
         res
       end
