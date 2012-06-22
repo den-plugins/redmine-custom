@@ -27,7 +27,7 @@ module Custom
           # check accounting_type of project
           issue_is_billable = (issue.acctg_type == Enumeration.find_by_name('Billable').id) ? true : false
           # user not allowed to log if not a member of project
-          if project.project_type.scan(/^(Admin)/).flatten.present?
+          if project.project_type and project.project_type.scan(/^(Admin)/).flatten.present?
             unless project.members.detect {|m| m.user_id == user_id}
               errors.add_to_base l(:error_timelog_project_membership)
               errors.add_to_base l(:error_timelog_project_allocation)
