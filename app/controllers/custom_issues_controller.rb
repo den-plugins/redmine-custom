@@ -150,6 +150,9 @@ class CustomIssuesController < IssuesController
 
     @notes = params[:notes]
     journal = @issue.init_journal(User.current, @notes)
+    custom_journal = journal.clone
+    issue_before_change = @issue.clone
+    issue_before_change.status = @issue.status
     # User can change issue attributes only if he has :edit permission or if a workflow transition is allowed
     if (@edit_allowed || !@allowed_statuses.empty?) && params[:issue]
       attrs = params[:issue].dup
@@ -172,6 +175,11 @@ class CustomIssuesController < IssuesController
           @issue.errors.add_to_base "Cannot assign to resigned resource." if employee_status == "Resigned"
         end
         if (@time_entry.hours.nil? || @time_entry.valid?) && @issue.errors.empty? && @issue.save
+          custom_journal.details << JournalDetail.new(:property => 'attr',
+                                               :prop_key => 'description',
+                                               :old_value => issue_before_change.send('description'),
+                                               :value => @issue.send('description')) unless @issue.send('description')==issue_before_change.send('description')
+          custom_journal.save
           # Log spend time
           if User.current.allowed_to?(:log_time, @project)
             @time_entry.save
