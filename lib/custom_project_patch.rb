@@ -21,6 +21,11 @@ module Custom
       def admin?
         !!project_type.to_s.downcase['admin']
       end
+
+      def closed?
+        temp = custom_values.detect{|x| x.custom_field.name.downcase["closure"]}
+        (temp and !temp.value.blank?) ? true : false
+      end
     end
   end
 end
