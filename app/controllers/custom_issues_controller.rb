@@ -174,7 +174,7 @@ class CustomIssuesController < IssuesController
         unless @issue.assigned_to.nil?
           @issue.errors.add_to_base "Cannot assign to resigned resource." if employee_status == "Resigned"
         end
-        if (@time_entry.hours.nil? || @time_entry.valid?) && @issue.errors.empty? && @issue.save
+        if @issue.save
           custom_journal.details << JournalDetail.new(:property => 'attr',
                                                :prop_key => 'description',
                                                :old_value => issue_before_change.send('description'),
@@ -204,10 +204,14 @@ class CustomIssuesController < IssuesController
             flash[:notice] = l(:notice_successful_update)
           end
           call_hook(:controller_issues_edit_after_save, { :params => params, :issue => @issue, :time_entry => @time_entry, :journal => journal})
-          if update_ticket_at_mystic?
-            return(update_mystic_ticket(@issue, @notes))
+          unless (@time_entry.hours.nil? || @time_entry.valid?) && @issue.errors.empty?
+            render :template => "issues/edit", :layout => !request.xhr?
           else
-            redirect_to(params[:back_to] || {:controller => 'issues', :action => 'show', :id => @issue})
+            if update_ticket_at_mystic?
+              return(update_mystic_ticket(@issue, @notes))
+            else
+              redirect_to(params[:back_to] || {:controller => 'issues', :action => 'show', :id => @issue})
+            end
           end
         else
           render :template => "issues/edit", :layout => !request.xhr?
