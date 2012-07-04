@@ -249,6 +249,19 @@ module Custom
         res = false if (!temp.blank? && temp.include?(false))
         res
       end
+      
+      def custom_clone
+        new_me = project.issues.build
+        hash = attributes
+        new_me.attributes = attributes
+        new_me.attributes = {"start_date" => nil, "created_on" => nil, "updated_on" => nil}
+        new_me.estimated_hours = estimated_hours
+        new_me
+      end
+     
+      def time_spent
+        time_entries.map(&:hours).sum.round(2)
+      end
 
       def children_carried_over?
         res = true
