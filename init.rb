@@ -10,12 +10,14 @@ require 'issues_controller_patch'
 require 'custom_member_patch'
 require 'custom_user_patch'
 require 'custom_project_patch'
+require 'custom_value_patch'
 require 'custom_time_entry_patch'
 require 'account_controller_patch'
 require 'delayed/scheduled_job'
 
 Dispatcher.to_prepare do
   Issue.send(:include, Custom::IssuePatch)
+  CustomValue.send(:include, Custom::ValuePatch)
   IssueRelation.send(:include, Custom::IssueRelationPatch)
   Version.send(:include, Custom::VersionPatch)
   IssuesController.send(:include, IssuesControllerPatch)

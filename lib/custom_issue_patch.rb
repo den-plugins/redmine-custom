@@ -260,7 +260,7 @@ module Custom
       end
      
       def time_spent
-        time_entries.map(&:hours).sum.round(2)
+        time_entries.map(&:hours).sum.to_f.round(2)
       end
 
       def children_carried_over?
