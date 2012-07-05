@@ -18,6 +18,8 @@ map.with_options :controller => 'custom_users' do |users|
   end
 end
 
+map.connect 'stories/:project_id/issues', :controller => 'custom_issues', :action => 'index'
+map.connect 'projects/:project_id/issues', :controller => 'custom_issues', :action => 'index'
 map.connect 'stories/:project_id/issues/new/', :controller => 'custom_issues', :action => 'new'
 map.connect 'projects/:project_id/issues/new/', :controller => 'custom_issues', :action => 'new'
 map.connect 'admin/holidays', :controller => 'holidays'
