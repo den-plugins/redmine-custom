@@ -12,6 +12,7 @@ require 'custom_user_patch'
 require 'custom_project_patch'
 require 'custom_value_patch'
 require 'custom_time_entry_patch'
+require 'custom_journal_detail_patch'
 require 'account_controller_patch'
 require 'delayed/scheduled_job'
 
@@ -27,6 +28,7 @@ Dispatcher.to_prepare do
   TimeEntry.send(:include, Custom::TimeEntryPatch)
   UsersController.send(:include, Custom::UsersControllerPatch)
   AccountController.send(:include,  AccountControllerPatch)
+  JournalDetail.send(:include, Custom::JournalDetailPatch)
 end
 
 #config.action_controller.session = { :session_key => "_myapp_session", :secret => '0f89835c91cb46aa8f6e35dad968a820a7a3904a'}
