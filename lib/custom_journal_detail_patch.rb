@@ -5,6 +5,7 @@ module Custom
     def self.included(base)
       base.class_eval do
         unloadable
+        
         def before_save
           puts "Overriding core method before_save."
         end

@@ -13,6 +13,7 @@ require 'custom_project_patch'
 require 'custom_value_patch'
 require 'custom_time_entry_patch'
 require 'custom_journal_detail_patch'
+require 'custom_journal_patch'
 require 'account_controller_patch'
 require 'delayed/scheduled_job'
 
@@ -28,6 +29,7 @@ Dispatcher.to_prepare do
   TimeEntry.send(:include, Custom::TimeEntryPatch)
   UsersController.send(:include, Custom::UsersControllerPatch)
   AccountController.send(:include,  AccountControllerPatch)
+  Journal.send(:include, Custom::JournalPatch)
   JournalDetail.send(:include, Custom::JournalDetailPatch)
 end
 
