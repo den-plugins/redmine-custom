@@ -9,6 +9,10 @@ module Custom
         def before_save
           puts "Overriding core method before_save."
         end
+
+        def save(*args)
+          (old_value.strip!="" or value.strip!="") ? true : super
+        end
       end
     end
   end
