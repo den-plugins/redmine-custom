@@ -9,7 +9,7 @@ module Custom
         def save(*args)
           puts "Overriding core method save."
           # Do not save an empty journal
-          ((details.empty? or details.select{|x| x.old_value.strip!="" or x.value.strip!=""}.empty?) and notes.blank?) ? false : super
+          ((details.empty? or details.select{|x| x.old_value.to_s.strip!="" or x.value.to_s.strip!=""}.empty?) and notes.blank?) ? false : super
         end
       end
     end

@@ -11,7 +11,7 @@ module Custom
         end
 
         def save(*args)
-          (old_value.strip!="" or value.strip!="") ? true : super
+          (old_value.to_s.strip!="" or value.to_s.strip!="") ? super : false
         end
       end
     end
