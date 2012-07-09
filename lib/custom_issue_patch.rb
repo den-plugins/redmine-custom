@@ -15,7 +15,7 @@ module Custom
         before_save :update_children_iterations, :if => "!children.empty? and fixed_version_id_changed?"
         after_save :is_closed_issue_effects, :if => :closed?
         after_save :update_parent_status, :if => :has_parent?
-        after_save :closing_parent_status, :if => "closed? and !children.empty?"
+        #after_save :closing_parent_status, :if => "closed? and !children.empty?"
         after_create :auto_create_tasks, :if => "feature? and !predefined_tasks.nil?"
         after_update :auto_create_tasks, :if => "feature? and !predefined_tasks.nil?"
       end
@@ -65,7 +65,7 @@ module Custom
       def remember_old_status
         self.old_status = self.status
       end
-
+      
       def closing_parent_status
         children.each do |c|
           if !c.closed?
@@ -211,7 +211,7 @@ module Custom
           "Integration"
         ]
       end
-
+      
       def auto_create_tasks
         predefined_tasks.each do |task_subject|
           @task = Issue.new
@@ -240,9 +240,9 @@ module Custom
       end
 
       def can_be_carried_over?
-        !time_entries.empty? and !closed? and remaining_effort != 0 and children_carried_over?
+        !time_entries.empty? and !closed? and (remaining_effort.to_f > 0.0) and children_carried_over?
       end
-
+      
       def children_transferable?
         res = true
         temp = children.map(&:is_transferable?)
