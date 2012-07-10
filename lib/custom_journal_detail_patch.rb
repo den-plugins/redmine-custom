@@ -7,7 +7,7 @@ module Custom
         unloadable
         
         def before_save
-          puts "Overriding core method before_save."
+          puts "Overriding JournalDetail#before_save in vendor/plugins/redmine_custom/lib/custom_journal_detail_patch.rb"
         end
 
         def save(*args)
