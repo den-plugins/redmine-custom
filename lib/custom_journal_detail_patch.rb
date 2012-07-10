@@ -3,6 +3,7 @@ require_dependency 'journal_detail'
 module Custom
   module JournalDetailPatch
     def self.included(base)
+      base.send(:include, InstanceMethods)
       base.class_eval do
         unloadable
         
@@ -11,7 +12,18 @@ module Custom
         end
 
         def save(*args)
-          (old_value.to_s.strip!="" or value.to_s.strip!="") ? super : false
+          value_valid? ? super : false
+        end
+      end
+    end
+    
+    module InstanceMethods
+      def value_valid?
+        sp = IssueCustomField.find_by_name("Story Points").id
+        if old_value.to_s.strip != value.to_s.strip
+          prop_key.to_i == sp ? old_value.to_f != value.to_f : true
+        else
+          false
         end
       end
     end
