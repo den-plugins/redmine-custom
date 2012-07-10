@@ -18,8 +18,15 @@ module Custom
     module InstanceMethods
       def value_not_changed?(details)
         sp = IssueCustomField.find_by_name("Story Points").id
-        details = details.select{|x| (x.old_value.to_s.strip != x.value.to_s.strip)}
-        details.select{|x| x.prop_key.to_i == sp ? x.old_value.to_f != x.value.to_f : true}.empty?
+        details = details.select{|x| (x.old_value.to_s.strip != x.value.to_s.strip) and 
+                                     (x.prop_key.to_i == sp ? x.old_value.to_f != x.value.to_f : true)}
+        if details.empty?
+          true
+        else
+          self.details = details
+          details.each {|z| z.save}
+          false
+        end
       end
     end
   end
