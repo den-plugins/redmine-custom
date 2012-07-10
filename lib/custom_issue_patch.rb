@@ -13,7 +13,7 @@ module Custom
         has_many :remaining_effort_entries, :dependent => :destroy
         before_save :remember_old_status, :if => "!children.empty?"
         before_save :update_children_iterations, :if => "!children.empty? and fixed_version_id_changed?"
-        after_save :is_closed_issue_effects, :if => :closed?
+        before_save :is_closed_issue_effects, :if => :closed?
         after_save :update_parent_status, :if => :has_parent?
         #after_save :closing_parent_status, :if => "closed? and !children.empty?"
         after_create :auto_create_tasks, :if => "feature? and !predefined_tasks.nil?"
@@ -89,7 +89,6 @@ module Custom
       def is_closed_issue_effects
         unless remaining_effort.nil? or remaining_effort.to_i.eql?(0)
           self.remaining_effort = 0
-          self.save
         end
       end
       

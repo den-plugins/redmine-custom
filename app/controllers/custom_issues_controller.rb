@@ -196,6 +196,7 @@ class CustomIssuesController < IssuesController
       issue_clone = @issue.clone
       @issue.predefined_tasks = params[:issue]['predefined_tasks']
       @issue.attributes = attrs
+      @issue.status = IssueStatus.find(attrs[:status_id]) if attrs[:status_id]
     end
 
     if request.post?
