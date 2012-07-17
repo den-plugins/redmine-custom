@@ -269,6 +269,13 @@ module Custom
         res
       end
       
+      def hashify_custom_values
+        hash = {}
+        custom_values.each do |c|
+          hash["#{c.custom_field_id}"] = c.value
+        end
+        hash
+      end
     end
   end
 end
