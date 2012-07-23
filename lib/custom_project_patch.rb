@@ -1,5 +1,3 @@
-require_dependency 'project'
-
 module Custom
   module ProjectPatch
     def self.included(base)

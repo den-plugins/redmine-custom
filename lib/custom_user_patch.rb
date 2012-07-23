@@ -1,5 +1,3 @@
-require_dependency 'user'
-
 module Custom
   module UserPatch
     def self.included(base)

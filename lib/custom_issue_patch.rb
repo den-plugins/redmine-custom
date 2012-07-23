@@ -1,5 +1,3 @@
-require_dependency 'issue'
-
 module Custom
   module IssuePatch
     def self.included(base)
