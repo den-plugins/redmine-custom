@@ -11,8 +11,8 @@
 <div class="splitcontentleft">
 <h3><%=l(:label_information_plural)%></h3>
 <div class="box tabular">
-<p><%= f.text_field :firstname, :required => true %></p>
-<p><%= f.text_field :lastname, :required => true %></p>
+<p><%= f.text_field :firstname, :required => true, :disabled => !@user.admin? %></p>
+<p><%= f.text_field :lastname, :required => true, :disabled => !@user.admin?  %></p>
 <p><%= f.text_field :mail, :required => true %></p>
 <p><%= f.select :language, lang_options_for_select %></p>
 <p><%= f.select :skill, [["None",""]] + User::SKILLS.collect {|s| [s, s]} %></p>
