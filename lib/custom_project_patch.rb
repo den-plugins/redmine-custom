@@ -22,7 +22,7 @@ module Custom
 
       def closed?
         temp = custom_values.detect{|x| x.custom_field.name.downcase["closure"]}
-        (temp and !temp.value.blank?) ? true : false
+        (temp and !temp.value.blank? and temp.value.to_date < Date.current) ? true : false
       end
     end
   end
