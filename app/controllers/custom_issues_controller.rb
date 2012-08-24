@@ -140,7 +140,10 @@ class CustomIssuesController < IssuesController
   end
 
   def edit
+    @open_issue = 0
     @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
+    @issue.children.each {|c| @open_issue += 1 if !c.closed? } if @issue.children.any?
+    @allowed_statuses = @allowed_statuses.reject{ |stat| stat.name.eql?("Closed") } if @open_issue > 0
     @priorities = Enumeration.priorities
     @accounting = Enumeration.accounting_types
     @default = @issue.accounting.id
