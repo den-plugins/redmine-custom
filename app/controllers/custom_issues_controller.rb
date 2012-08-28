@@ -142,7 +142,17 @@ class CustomIssuesController < IssuesController
   def edit
     @open_issue = 0
     @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
-    @issue.children.each {|c| @open_issue += 1 if !c.closed? } if @issue.children.any?
+    #check all nodes of the tree
+    if @issue.children.any?
+      arr = @issue.children
+      while !arr.empty? and @open_issue == 0
+        arr.each do |c|
+          @open_issue +=1 if !c.closed?
+          arr.delete c
+          arr += c.children
+        end
+      end
+    end
     @allowed_statuses = @allowed_statuses.reject{ |stat| stat.name.eql?("Closed") } if @open_issue > 0
     @priorities = Enumeration.priorities
     @accounting = Enumeration.accounting_types
