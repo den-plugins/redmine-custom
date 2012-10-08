@@ -56,8 +56,8 @@ module Custom
           actuals_to_date = 0
           project_budget = 0
 
-          pfrom, afrom, pto, ato = project.planned_start_date, project.actual_start_date, project.planned_end_date, project.actual_end_date
-          to = (ato || pto)
+          pfrom, afrom, pto, ato, maintenance_end_date = project.planned_start_date, project.actual_start_date, project.planned_end_date, project.actual_end_date, project.maintenance_end
+          to = maintenance_end_date ? maintenance_end_date : (ato || pto)
 
           if pfrom && to
             team = project.members.project_team.all
@@ -73,7 +73,6 @@ module Custom
           end
           #include current time entry's amount
           member = team.detect{|m| m.user_id == user_id}
-          actuals_to_date += hours.to_f * member.internal_rate.to_f
           errors.add_to_base l(:error_timelog_budget_consumed) if (project_budget - actuals_to_date) < 0
         end
       end
