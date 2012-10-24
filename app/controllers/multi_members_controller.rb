@@ -14,9 +14,9 @@ class MultiMembersController < MembersController
       @errors = nil
       @notices = l(:notice_successful_delete)
     end
-	  respond_to do |format|
+    respond_to do |format|
       format.html { redirect_to :controller => 'projects', :action => 'settings', :tab => 'members', :id => @project }
-      format.js { render(:update) {|page| page.replace_html "tab-content-members", :partial => 'projects/settings/members'} }
+      format.js { render(:update) { |page| page.replace_html "tab-content-members", :partial => 'projects/settings/members' } }
     end
   end
 
@@ -25,7 +25,7 @@ class MultiMembersController < MembersController
     roles = Role.find_all_givable
     render :partial => "members/new", :locals => {:roles => roles}
   end
-  
+
   def delete_members
     @project = Project.find(params[:project_id])
     render :partial => "members/delete"
@@ -39,21 +39,30 @@ class MultiMembersController < MembersController
     if params[:member] && request.post?
       attrs = params[:member].dup
       if (user_ids = attrs.delete(:user_ids))
-        user_ids.each do |user_id|
-          resource = User.find_by_login(attrs[:user_login])
-          unless resource.employee_status == 'Resigned'
-            members << Member.new(attrs.merge(:user_id => user_id))
-          else
-            resigned_members << name(resource)
+        resource = User.find_by_login(attrs[:user_login])
+        unless resource.employee_status == 'Resigned'
+          unless attrs[:user_login] == ""
+            members << Member.new(attrs.merge(:user_id => resource.id))
             attrs[:user_login] = ""
-            members << Member.new(attrs.merge(:user_id => user_id))
           end
-          members.each { |member| resource = User.find(member.user_id)
-                                  if resource.employee_status == 'Resigned'
-                                    members.delete(member)
-                                    resigned_members << name(resource)
-                                  end}
+        else
+          resigned_members << name(resource)
+          attrs[:user_login] = ""
         end
+
+        user_ids.each do |user_id|
+          members << Member.new(attrs.merge(:user_id => user_id))
+        end
+
+        members.each do |member|
+          resource = User.find(member.user_id)
+
+          if resource.employee_status == 'Resigned'
+            members.delete(member)
+            resigned_members << name(resource)
+          end
+        end
+
       else
         resource = User.find_by_login(attrs[:user_login])
         if resource.employee_status == 'Resigned'
@@ -68,9 +77,9 @@ class MultiMembersController < MembersController
     respond_to do |format|
       format.html { redirect_to :controller => 'projects', :action => 'settings', :tab => 'members', :id => @project }
       format.js {
-        render(:update) {|page|
+        render(:update) { |page|
           page.replace_html "tab-content-members", :partial => 'projects/settings/members'
-          members.each {|member| page.visual_effect(:highlight, "member-#{member.id}") }
+          members.each { |member| page.visual_effect(:highlight, "member-#{member.id}") }
         }
       }
     end
