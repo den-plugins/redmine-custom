@@ -15,14 +15,14 @@
 <p><%= f.text_field :lastname, :required => true, :disabled => !@user.admin?  %></p>
 <p><%= f.text_field :mail, :required => true %></p>
 <p><%= f.select :language, lang_options_for_select %></p>
-<p><%= f.select :skill, [["None",""]] + User::SKILLS.collect {|s| [s, s]} %></p>
-<p><%= f.select :location, [["None",""]] + User::LOCATIONS.collect {|l| [l, l]} %></p>
+<p><%= f.select :skill, [["None",""]] + User::SKILLS.collect {|s| [s, s]}, {}, {:disabled => !@user.admin?} %></p>
+<p><%= f.select :location, [["None",""]] + User::LOCATIONS.collect {|l| [l, l]}, {}, {:disabled => !@user.admin?} %></p>
 <% if Setting.openid? %>
 <p><%= f.text_field :identity_url  %></p>
 <% end %>
 
 <% @user.custom_field_values.select(&:editable?).each do |value| %>
-	<p><%= custom_field_tag_with_label :user, value %></p>
+	<p><%= custom_field_tag_with_label :user, value, @user %></p>
 <% end %>
 <%= call_hook(:view_my_account, :user => @user, :form => f) %>
 </div>

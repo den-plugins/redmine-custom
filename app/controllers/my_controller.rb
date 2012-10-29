@@ -1,5 +1,6 @@
 class MyController < ApplicationController
-  
+
+  helper :custom_users
   before_filter :filter, :only => [:page, :page_layout, :add_block]
   
   private
