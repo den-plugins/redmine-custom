@@ -10,7 +10,7 @@ class CustomIssuesController < IssuesController
   before_filter :filter, :only => [:gantt, :calendar]
   skip_before_filter :find_optional_project, :only => [:gantt, :calendar]
   before_filter :custom_find_optional_project, :only => [:gantt, :calendar]
-  
+
   def new
     @issue = Issue.new
     @issue.copy_from(params[:copy_from]) if params[:copy_from]
@@ -28,7 +28,7 @@ class CustomIssuesController < IssuesController
       @issue.predefined_tasks = params[:issue]['predefined_tasks']
     end
     @issue.author = User.current
-    
+
     default_status = IssueStatus.default
     unless default_status
       render_error 'No default issue status is defined. Please check your configuration (Go to "Administration -> Issue statuses").'
@@ -36,7 +36,7 @@ class CustomIssuesController < IssuesController
     end
     @issue.status = default_status
     @allowed_statuses = ([default_status] + default_status.find_new_statuses_allowed_to(User.current.role_for_project(@project), @issue.tracker)).uniq
-    
+
     if params[:issue_from_id]
       @mode = "subtask"
       @relation = IssueRelation.new()
@@ -69,46 +69,46 @@ class CustomIssuesController < IssuesController
         end
         attach_files(@issue, params[:attachments])
         flash[:notice] = l(:notice_successful_create)
-        call_hook(:controller_issues_new_after_save, { :params => params, :issue => @issue})
-        redirect_to(params[:continue] ? { :action => 'new', :tracker_id => @issue.tracker, :project_id => @project, :back_to => params[:back_to] } :
-                                        (params[:back_to] || { :controller => 'issues', :action => 'show', :id => @issue }))
+        call_hook(:controller_issues_new_after_save, {:params => params, :issue => @issue})
+        redirect_to(params[:continue] ? {:action => 'new', :tracker_id => @issue.tracker, :project_id => @project, :back_to => params[:back_to]} :
+                        (params[:back_to] || {:controller => 'issues', :action => 'show', :id => @issue}))
         return
       end
-    end	
+    end
     @priorities = Enumeration.priorities
     @accounting = Enumeration.accounting_types
     @default = !@project.accounting.nil? ? @project.accounting.id : Enumeration.accounting_types.default.id if Enumeration.accounting_types
     render :template => 'issues/new', :layout => !request.xhr?
   end
 
-  def gantt    
+  def gantt
     @gantt = Redmine::Helpers::Gantt.new(params)
     retrieve_query
     if @query.valid?
       events = []
       # Issues that have start and due dates
-      events += Issue.find(:all, 
+      events += Issue.find(:all,
                            :order => "start_date, due_date",
-                           :include => [:tracker, :status, :assigned_to, :priority, :project], 
+                           :include => [:tracker, :status, :assigned_to, :priority, :project],
                            :conditions => ["(#{@query.statement}) AND (((start_date>=? and start_date<=?) or (due_date>=? and due_date<=?) or (start_date<? and due_date>?)) and start_date is not null and due_date is not null)", @gantt.date_from, @gantt.date_to, @gantt.date_from, @gantt.date_to, @gantt.date_from, @gantt.date_to]
-                           )
+      )
       # Issues that don't have a due date but that are assigned to a version with a date
-      events += Issue.find(:all, 
+      events += Issue.find(:all,
                            :order => "start_date, effective_date",
-                           :include => [:tracker, :status, :assigned_to, :priority, :project, :fixed_version], 
+                           :include => [:tracker, :status, :assigned_to, :priority, :project, :fixed_version],
                            :conditions => ["(#{@query.statement}) AND (((start_date>=? and start_date<=?) or (effective_date>=? and effective_date<=?) or (start_date<? and effective_date>?)) and start_date is not null and due_date is null and effective_date is not null)", @gantt.date_from, @gantt.date_to, @gantt.date_from, @gantt.date_to, @gantt.date_from, @gantt.date_to]
-                           )
+      )
       # Versions
       events += Version.find(:all, :include => :project,
-                                   :conditions => ["(#{@query.project_statement}) AND effective_date BETWEEN ? AND ?", @gantt.date_from, @gantt.date_to])
-                                   
+                             :conditions => ["(#{@query.project_statement}) AND effective_date BETWEEN ? AND ?", @gantt.date_from, @gantt.date_to])
+
       @gantt.events = events
     end
-    
+
     respond_to do |format|
       format.html { render :template => "issues/gantt.rhtml", :layout => !request.xhr? }
-      format.png  { send_data(@gantt.to_image, :disposition => 'inline', :type => 'image/png', :filename => "#{@project.nil? ? '' : "#{@project.identifier}-" }gantt.png") } if @gantt.respond_to?('to_image')
-      format.pdf  { send_data(gantt_to_pdf(@gantt, @project), :type => 'application/pdf', :filename => "#{@project.nil? ? '' : "#{@project.identifier}-" }gantt.pdf") }
+      format.png { send_data(@gantt.to_image, :disposition => 'inline', :type => 'image/png', :filename => "#{@project.nil? ? '' : "#{@project.identifier}-" }gantt.png") } if @gantt.respond_to?('to_image')
+      format.pdf { send_data(gantt_to_pdf(@gantt, @project), :type => 'application/pdf', :filename => "#{@project.nil? ? '' : "#{@project.identifier}-" }gantt.pdf") }
     end
   end
 
@@ -117,25 +117,25 @@ class CustomIssuesController < IssuesController
       @year = params[:year].to_i
       if params[:month] and params[:month].to_i > 0 and params[:month].to_i < 13
         @month = params[:month].to_i
-      end    
+      end
     end
     @year ||= Date.today.year
     @month ||= Date.today.month
-    
+
     @calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
     retrieve_query
     if @query.valid?
       events = []
-      events += Issue.find(:all, 
-                           :include => [:tracker, :status, :assigned_to, :priority, :project], 
+      events += Issue.find(:all,
+                           :include => [:tracker, :status, :assigned_to, :priority, :project],
                            :conditions => ["(#{@query.statement}) AND ((start_date BETWEEN ? AND ?) OR (due_date BETWEEN ? AND ?))", @calendar.startdt, @calendar.enddt, @calendar.startdt, @calendar.enddt]
-                           )
+      )
       events += Version.find(:all, :include => :project,
-                                   :conditions => ["(#{@query.project_statement}) AND effective_date BETWEEN ? AND ?", @calendar.startdt, @calendar.enddt])
-                                     
+                             :conditions => ["(#{@query.project_statement}) AND effective_date BETWEEN ? AND ?", @calendar.startdt, @calendar.enddt])
+
       @calendar.events = events
     end
-    
+
     render :template => "issues/calendar", :layout => !request.xhr?
   end
 
@@ -153,7 +153,7 @@ class CustomIssuesController < IssuesController
         end
       end
     end
-    @allowed_statuses = @allowed_statuses.reject{ |stat| stat.name.eql?("Closed") } if @open_issue > 0
+    @allowed_statuses = @allowed_statuses.reject { |stat| stat.name.eql?("Closed") } if @open_issue > 0
     @priorities = Enumeration.priorities
     @accounting = Enumeration.accounting_types
     @default = @issue.accounting.id
@@ -168,8 +168,8 @@ class CustomIssuesController < IssuesController
     # User can change issue attributes only if he has :edit permission or if a workflow transition is allowed
     if (@edit_allowed || !@allowed_statuses.empty?) && params[:issue]
       attrs = params[:issue].dup
-      attrs.delete_if {|k,v| !UPDATABLE_ATTRS_ON_TRANSITION.include?(k) } unless @edit_allowed
-      attrs.delete(:status_id) unless @allowed_statuses.detect {|s| s.id.to_s == attrs[:status_id].to_s}
+      attrs.delete_if { |k, v| !UPDATABLE_ATTRS_ON_TRANSITION.include?(k) } unless @edit_allowed
+      attrs.delete(:status_id) unless @allowed_statuses.detect { |s| s.id.to_s == attrs[:status_id].to_s }
       issue_clone = @issue.clone
       @issue.predefined_tasks = params[:issue]['predefined_tasks']
       @issue.attributes = attrs
@@ -181,9 +181,9 @@ class CustomIssuesController < IssuesController
         @time_entry = TimeEntry.new(:project => @project, :issue => @issue, :user => User.current, :spent_on => Date.today)
         @time_entry.attributes = params[:time_entry]
         attachments = attach_files(@issue, params[:attachments])
-        attachments.each {|a| journal.details << JournalDetail.new(:property => 'attachment', :prop_key => a.id, :value => a.filename)}
+        attachments.each { |a| journal.details << JournalDetail.new(:property => 'attachment', :prop_key => a.id, :value => a.filename) }
 
-        call_hook(:controller_issues_edit_before_save, { :params => params, :issue => @issue, :time_entry => @time_entry, :journal => journal})
+        call_hook(:controller_issues_edit_before_save, {:params => params, :issue => @issue, :time_entry => @time_entry, :journal => journal})
         unless @issue.assigned_to.nil?
           @issue.errors.add_to_base "Cannot assign to resigned resource." if employee_status == "Resigned"
         end
@@ -216,7 +216,7 @@ class CustomIssuesController < IssuesController
             # Only send notification if something was actually changed
             flash[:notice] = l(:notice_successful_update)
           end
-          call_hook(:controller_issues_edit_after_save, { :params => params, :issue => @issue, :time_entry => @time_entry, :journal => journal})
+          call_hook(:controller_issues_edit_after_save, {:params => params, :issue => @issue, :time_entry => @time_entry, :journal => journal})
           unless (@time_entry.hours.nil? || @time_entry.valid?) && @issue.errors.empty?
             render :template => "issues/edit", :layout => !request.xhr?
           else
@@ -244,42 +244,50 @@ class CustomIssuesController < IssuesController
     del_subtasks = false
     if @hours > 0
       case params[:todo]
-      when 'destroy'
-        # nothing to do
-      when 'nullify'
-        TimeEntry.update_all('issue_id = NULL', ['issue_id IN (?)', @issues])
-      when 'reassign'
-        reassign_to = @project.issues.find_by_id(params[:reassign_to_id])
-        if reassign_to.nil?
-          flash.now[:error] = l(:error_issue_not_found_in_project)
-          return
+        when 'destroy'
+          # nothing to do
+        when 'nullify'
+          TimeEntry.update_all('issue_id = NULL', ['issue_id IN (?)', @issues])
+        when 'reassign'
+          reassign_to = @project.issues.find_by_id(params[:reassign_to_id])
+          if reassign_to.nil?
+            flash.now[:error] = l(:error_issue_not_found_in_project)
+            return
+          else
+            TimeEntry.update_all("issue_id = #{reassign_to.id}", ['issue_id IN (?)', @issues])
+          end
         else
-          TimeEntry.update_all("issue_id = #{reassign_to.id}", ['issue_id IN (?)', @issues])
-        end
-      else
-        # display the destroy form
-        return
+          # display the destroy form
+          return
       end
     end
     if @children > 0
       @hours = 0
+      @open_issue_count = 0
+      @child_tasks = IssueRelation.all(:conditions => ["relation_type = 'subtasks' and issue_from_id IN (?)", @issues])
       case params[:children_todo]
-      when 'destroy_parent_only'
-        # do nothing
-      when 'destroy_all'
-        del_subtasks = true
-      else
-        # display the destroy form
-        return
+        when 'destroy_parent_only'
+          count_open_tasks
+        when 'destroy_all'
+          count_open_tasks
+          del_subtasks = true
+        else
+          # display the destroy form
+          return
       end
     end
-    @issues.each do |i|
-      i.delete_child_issues if !i.children.blank? && del_subtasks
-      i.destroy if Issue.exists?(i)
+
+    if @open_issue_count && @open_issue_count > 0
+      flash[:error] = "Can't delete if there are open subtasks."
+    else
+      @issues.each do |i|
+        i.delete_child_issues if !i.children.blank? && del_subtasks
+        i.destroy if Issue.exists?(i)
+      end
     end
     redirect_to :action => 'index', :controller => 'issues', :project_id => @project
   end
-  
+
   private
   def custom_authorize(action = params[:action])
     allowed = User.current.allowed_to?({:controller => 'issues', :action => action}, @project)
@@ -289,13 +297,13 @@ class CustomIssuesController < IssuesController
   def filter
     @milestone_filter = 1
     @output = case params[:milestone]
-              when "1"
-                [1,2]
-              else
-                [2]
+                when "1"
+                  [1, 2]
+                else
+                  [2]
               end
   end
-  
+
   def custom_find_optional_project
     @project = Project.find(params[:project_id]) unless params[:project_id].blank?
     allowed = User.current.allowed_to?({:controller => 'issues', :action => params[:action]}, @project, :global => true)
@@ -305,7 +313,7 @@ class CustomIssuesController < IssuesController
   end
 
   def employee_status
-    r = @issue.assigned_to.custom_values.detect {|v| v.mgt_custom "Employee Status"}
+    r = @issue.assigned_to.custom_values.detect { |v| v.mgt_custom "Employee Status" }
     status = r ? r.value : ""
   end
 
@@ -318,5 +326,11 @@ class CustomIssuesController < IssuesController
       end
     end
   end
-  
+
+  def count_open_tasks
+    @child_tasks.each do |v|
+      @open_issue_count += 1 if v.issue_to.status.name != "Closed"
+    end
+  end
+
 end
