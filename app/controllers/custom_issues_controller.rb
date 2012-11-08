@@ -5,11 +5,14 @@
 
 class CustomIssuesController < IssuesController
 
-  skip_before_filter :authorize, :only => [:new, :find_project, :edit, :destroy]
+  skip_before_filter :authorize, :only => [:show, :new, :find_project, :edit, :destroy]
   before_filter :custom_authorize, :only => [:new, :find_project, :edit, :destroy]
   before_filter :filter, :only => [:gantt, :calendar]
   skip_before_filter :find_optional_project, :only => [:gantt, :calendar]
   before_filter :custom_find_optional_project, :only => [:gantt, :calendar]
+
+  include CustomIssuesHelper
+  helper :custom_issues
 
   def new
     @issue = Issue.new
