@@ -1,5 +1,7 @@
 class CustomUsersController < UsersController
-  before_filter :require_admin
+  before_filter :require_admin, :except => [:check_time_entries]
+  skip_before_filter :require_login, :only => [:check_time_entries]
+  skip_before_filter :check_if_login_required, :only => [:check_time_entries]
 
   helper :sort
   include SortHelper
@@ -41,4 +43,16 @@ class CustomUsersController < UsersController
     @skills = Skill.find(:all)
   end
 
+  def check_time_entries
+    @complete = false
+    if params[:username]
+      username = params[:username]
+      start_date = (Date.today - 7.days).beginning_of_week
+      end_date = (Date.today - 7.days).end_of_week
+      @resource = User.find_by_login(username)
+      @time_entries_total = @resource.time_entries.find(:all, :conditions => ["spent_on >= ? AND spent_on <= ?", start_date, end_date]).sum(&:hours)
+      @complete = @time_entries_total < 40 ? false : true
+    end
+    render :json => { :complete => @complete }.to_json
+  end
 end

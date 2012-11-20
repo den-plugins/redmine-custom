@@ -31,4 +31,6 @@ map.with_options :controller => 'custom_issues' do |issues_routes|
    end
 end
 
+map.connect 'users/check_time_entries', :controller => 'custom_users', :action => 'check_time_entries'
+
 map.connect 'projects/:id/members/new', :controller => 'multi_members', :action => 'new'
