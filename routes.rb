@@ -18,10 +18,27 @@ map.with_options :controller => 'custom_users' do |users|
   end
 end
 
+map.with_options :controller => 'issues' do |issues_routes|
+  issues_routes.with_options :conditions => {:method => :get} do |issues_views|
+    issues_views.connect 'issues', :action => 'index'
+    issues_views.connect 'issues.:format', :action => 'index'
+    issues_views.connect 'projects/:project_id/issues', :action => 'index'
+    issues_views.connect 'projects/:project_id/issues.:format', :action => 'index'
+    issues_views.connect 'projects/:project_id/issues/:copy_from/copy', :action => 'new'
+    issues_views.connect 'issues/:id/edit', :action => 'edit', :id => /\d+/
+    issues_views.connect 'issues/:id/move', :action => 'move', :id => /\d+/
+  end
+  issues_routes.with_options :conditions => {:method => :post} do |issues_actions|
+    issues_actions.connect 'issues/:id/quoted', :action => 'reply', :id => /\d+/
+    issues_actions.connect 'issues/:id/:action', :action => /move|destroy/, :id => /\d+/
+  end
+  issues_routes.connect 'issues/:action'
+end
+
 map.connect 'stories/:project_id/issues/new/', :controller => 'custom_issues', :action => 'new'
 map.connect 'projects/:project_id/issues/new/', :controller => 'custom_issues', :action => 'new'
 map.connect 'issues/:id/', :controller => 'custom_issues', :action => 'show'
-map.connect 'projects/:project_id/issues', :controller => 'issues', :action => 'index'
+map.connect 'issues/show/:id', :controller => 'custom_issues', :action => 'show'
 map.connect 'admin/holidays', :controller => 'holidays'
 map.connect 'projects/:project_id/issues/calendar', :controller => 'custom_issues', :action => 'calendar'
 map.connect 'projects/:project_id/issues/gantt', :controller => 'custom_issues', :action => 'gantt'
