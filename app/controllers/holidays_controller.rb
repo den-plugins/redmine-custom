@@ -47,6 +47,21 @@ class HolidaysController < ApplicationController
     end
   end
 
+  def save_holidays
+    if params[:date] && params[:title] && params[:description] && params[:location]
+      holiday = Holiday.new
+      holiday.event_date = params[:date]
+      holiday.title = params[:title]
+      holiday.description = params[:description]
+      holiday.location = params[:location]
+      if holiday.save
+        render :json => { :save_complete => true }.to_json
+      else
+        render :json => { :save_complete => false }.to_json
+      end
+    end
+  end
+
   private
   
   def get_holiday

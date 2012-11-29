@@ -51,3 +51,5 @@ end
 map.connect 'users/check_time_entries', :controller => 'custom_users', :action => 'check_time_entries'
 
 map.connect 'projects/:id/members/new', :controller => 'multi_members', :action => 'new'
+
+map.connect 'holidays/save_holidays', :controller => 'holidays', :action => 'save_holidays'
