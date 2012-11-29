@@ -1,7 +1,8 @@
 class HolidaysController < ApplicationController
   
-  before_filter :require_login
+  before_filter :require_login, :except => [:save_holidays]
   before_filter :get_holiday, :only => [:update, :destroy]
+  skip_before_filter :check_if_login_required, :only => [:save_holidays]
 
   helper :sort
   include SortHelper
@@ -59,6 +60,8 @@ class HolidaysController < ApplicationController
       else
         render :json => { :save_complete => false }.to_json
       end
+    else
+      render :json => { :save_complete => false }.to_json
     end
   end
 
