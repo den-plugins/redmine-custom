@@ -1,8 +1,8 @@
 class HolidaysController < ApplicationController
-  before_filter :require_login, :except => [:save_holidays]
+  before_filter :require_login, :except => [:save_holidays, :update_holidays]
   before_filter :get_holiday, :only => [:update, :destroy]
-  skip_before_filter :check_if_login_required, :only => [:save_holidays]
-  before_filter :restrict_access, :only => [:save_holidays]
+  skip_before_filter :check_if_login_required, :only => [:save_holidays, :update_holidays]
+  before_filter :restrict_access, :only => [:save_holidays, :update_holidays]
 
   helper :sort
   include SortHelper
@@ -51,10 +51,27 @@ class HolidaysController < ApplicationController
   def save_holidays
     if params[:date] && params[:title] && params[:description] && params[:location]
       holiday = Holiday.new
-      holiday.event_date = params[:date]
+      holiday.event_date = Date.parse(params[:date])
       holiday.title = params[:title]
       holiday.description = params[:description]
       holiday.location = params[:location]
+      if holiday.save
+        render :json => { :save_complete => true, :holiday_id => holiday.id }.to_json
+      else
+        render :json => { :save_complete => false, :holiday_id => nil }.to_json
+      end
+    else
+      render :json => { :save_complete => false, :holiday_id => nil }.to_json
+    end
+  end
+
+  def update_holidays
+    if params[:holiday_id] || params[:date] || params[:title] || params[:description] || params[:location]
+      holiday = Holiday.find(params[:holiday_id])
+      holiday.event_date = Date.parse(params[:date]) if params[:date]
+      holiday.title = params[:title] if params[:title]
+      holiday.description = params[:description] if params[:description]
+      holiday.location = params[:location] if params[:location]
       if holiday.save
         render :json => { :save_complete => true }.to_json
       else
