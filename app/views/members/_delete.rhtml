@@ -1,0 +1,17 @@
+<fieldset>
+  <legend>
+    <span>
+      <%= link_to_remote l(:label_member_new), { :url => {:controller => 'multi_members', 
+                                :action => 'new_member', :project_id => @project},
+                                :update => "add_remove_members", :complete => "new Effect.Highlight('add_remove_members')"} %>
+    </span>
+    <span class="selected">Remove member(s)</span>
+  </legend>
+  <% @members = @project.members.sort_by(&:name) %>
+	<% remote_form_for(:members, @members, :url => {:controller => 'multi_members', :action => 'destroy'}) do |f| %>
+    <%= select_tag 'member_ids[]',
+		            options_for_select(@members.collect{|m| [m.name, m.id]}),
+		            :id => 'selected_members', :multiple => true, :style => "width:100%; height:500px;" %>
+		<%= submit_tag "Remove" %>
+	<% end %>
+</fieldset>

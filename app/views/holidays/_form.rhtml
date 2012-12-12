@@ -1,0 +1,11 @@
+<p><%= f.text_field :event_date, :size => 10 %><%= calendar_for('holiday_event_date') %></p>
+<p><%= f.text_field :title, :class=> 'wiki-edit' %></p>
+<p><%= f.text_area :description, :rows => 3, :cols => 30, :class=> 'wiki-edit' %></p>
+<p><%= f.select :location, Holiday::LOCATIONS.sort.collect {|p| [ p[1], p[0] ] } %></p>
+<hr/>
+
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'pm_dashboard', :plugin => 'pm_dashboard' %>
+  <%= javascript_include_tag 'select_list_move' %>
+  <%= javascript_include_tag 'pm_dashboard', :plugin => 'pm_dashboard'  %>
+<% end %>

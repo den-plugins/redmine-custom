@@ -1,0 +1,31 @@
+<table id="risks" class="list" style='text-align: center; '>
+  <thead>
+    <tr class='risks_header'>
+    <%= sort_header_tag('event_date', :caption => l(:label_event_date)) %>
+	<th><%= l(:label_title)%></th>
+	<th><%= l(:label_description)%></th>
+	<th><%= l(:label_location)%></th>
+      <th></th>
+    </tr>
+  </thead>
+  <% @holiday.each do |h| %>
+      <tr class="<%= cycle('odd', 'even') %>">
+      <td><%= h.event_date %></td>
+      <td><%= h.title %></td>
+      <td><%= h.description %></td>
+      <td><%= Holiday::LOCATIONS[h.location.to_i] unless h.location.nil? %></td>
+      <td>
+	<%= link_to image_tag('edit.png'), {:controller => 'holidays' , :action => 'update', :id => h},
+                                             :title => l(:button_edit) %>
+        <%= link_to image_tag('delete.png'), {:controller => 'holidays', :action => 'destroy', :id => h},
+                                             :confirm => l(:text_are_you_sure),
+                                             :method => :post,
+                                             :title => l(:button_delete) %>
+      </td>
+    </tr>
+  <% end %>
+</table>
+
+<script type="text/javascript">
+  jQuery('#ajax-indicator').hide();
+</script>

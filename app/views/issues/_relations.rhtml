@@ -1,0 +1,81 @@
+<div class="contextual">
+<% if authorize_for('issue_relations', 'new') %>
+    <%= toggle_link l(:button_add), 'new-relation-form'%>
+<% end %>
+</div>
+
+<% unless @issue.parent.nil? %>
+  <p><strong><%=l(:label_parent)%></strong></p>
+  <table style="width:100%">
+  <tr>
+    <% parent_issue = @issue.parent.other_issue(@issue) %>
+    <td><%= "(#{lwr(:actionview_datehelper_time_in_words_day, @issue.parent.delay)})" if @issue.parent.delay && @issue.parent.delay != 0 %> <%= link_to_issue @issue.parent.other_issue(@issue) %></td>
+    <td><%=h parent_issue.subject %></td>
+    <td><%= parent_issue.status.name %></td>
+    <% version = parent_issue.fixed_version %>
+    <td><%= (version && version.is_a?(Version)) ? (link_to h(version.name), { :controller => 'versions', :action => 'show', :id => version }) : "-" %></td>
+    <td><%= format_date(parent_issue.start_date) %></td>
+    <td><%= format_date(parent_issue.due_date) %></td>
+  </tr>
+  <tr>
+    <td><%= image_tag('child.gif') %><%= link_to_issue @issue %></td>
+  </tr>
+  </table>
+<% end %>
+
+
+<% if @issue.get_subtasks.any? %>
+  <p><strong><%=l(:label_subtasks)%></strong></p>
+  <table style="width:100%">
+    <%= link_to_issue @issue %>
+    <% @issue.get_subtasks.each do |relation| %>
+      <tr>
+        <% other_issue = relation.other_issue(@issue) %>
+        <td><%= image_tag('child.gif') %> <%= "(#{lwr(:actionview_datehelper_time_in_words_day, relation.delay)})" if relation.delay && relation.delay != 0 %> <%= link_to_issue relation.other_issue(@issue) %></td>
+        <td><%=h other_issue.subject %></td>
+        <td><%= other_issue.status.name %></td>
+        <%# NB: moved missing helper %>
+        <%version = other_issue.fixed_version%>
+        <td><%= (version && version.is_a?(Version)) ? (link_to h(version.name), { :controller => 'versions', :action => 'show', :id => version }) : "-" %></td>
+        <td><%= other_issue.estimated_hours %></td>
+        <td><%= other_issue.assigned_to ? link_to_user(other_issue.assigned_to) : "-" %></td>
+        <td><%= format_date(other_issue.start_date) %></td>
+        <td><%= format_date(other_issue.due_date) %></td>
+        <td><%= link_to_remote(image_tag('delete.png'), { :url => {:controller => 'issue_relations', :action => 'destroy', :issue_id => @issue, :id => relation},                                              
+                                                  :method => :post
+                                                }, :title => l(:label_relation_delete)) if authorize_for('issue_relations', 'destroy') %></td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
+
+<p><strong><%=l(:label_related_issues)%></strong></p>
+
+<% if @issue.relations.any? %>
+<table style="width:100%">
+<% @issue.relations.select {|r| r.other_issue(@issue).visible? }.each do |relation| %>
+<% unless relation.relation_type.eql?("subtasks") %>
+<tr>
+<td><%= l(relation.label_for(@issue)) %> <%= "(#{l('datetime.distance_in_words.x_days', :count => relation.delay)})" if relation.delay && relation.delay != 0 %>
+    <%= h(relation.other_issue(@issue).project) + ' - ' if Setting.cross_project_issue_relations? %> <%= link_to_issue relation.other_issue(@issue) %></td>
+<td><%=h relation.other_issue(@issue).subject %></td>
+<td><%= relation.other_issue(@issue).status.name %></td>
+<td><%= format_date(relation.other_issue(@issue).start_date) %></td>
+<td><%= format_date(relation.other_issue(@issue).due_date) %></td>
+<td><%= link_to_remote(image_tag('delete.png'), { :url => {:controller => 'issue_relations', :action => 'destroy', :issue_id => @issue, :id => relation},                                              
+                                                  :method => :post
+                                                }, :title => l(:label_relation_delete)) if authorize_for('issue_relations', 'destroy') %></td>
+</tr>
+<% end %><% end %>
+</table>
+<% end %>
+
+<% remote_form_for(:relation, @relation, 
+                 :url => {:controller => 'issue_relations', :action => 'new', :issue_id => @issue},
+                 :method => :post,
+                 :html => {:id => 'new-relation-form', :style => (@relation ? '' : 'display: none;')}) do |f| %>
+<%= render :partial => 'issue_relations/form', :locals => {:f => f}%>
+<% end %>
+
+<p><%= link_to l(:label_create_subtask), {:controller => 'subtask', :action => 'create', :issue_from_id => @issue, :parent_tracker_id => @issue.tracker.id, :project_id => @project, :relation_type => "subtasks", :fixed_version_id => @issue.fixed_version_id  } %></p>
+

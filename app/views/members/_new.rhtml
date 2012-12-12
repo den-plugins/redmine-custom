@@ -1,0 +1,28 @@
+<% users_count = User.active.count - @project.users.count
+   users = (users_count < 600) ? User.active.all.sort - @project.users : [] %>
+<% if roles.any? && users_count > 0 %>
+  <% remote_form_for(:member, @member, :url => {:controller => 'members', :action => 'new', :id => @project}, :method => :post) do |f| %>
+    <fieldset>
+    <legend>
+      <span class="selected"><%=l(:label_member_new)%></span>
+      <span>
+        <%= link_to_remote "Remove member(s)", { :url => {:controller => 'multi_members', 
+                                  :action => 'delete_members', :users_count => users_count, :project_id => @project},
+                                  :update => "add_remove_members", :complete => "new Effect.Highlight('add_remove_members')"} %>
+      </span>
+    </legend>
+		<p><%= text_field_tag 'member[user_login]', nil, :size => "40" %></p>
+		<div id="member_user_login_choices" class="autocomplete">sqd</div>
+		<%= javascript_tag "new Ajax.Autocompleter('member_user_login', 'member_user_login_choices', '#{ url_for(:controller => 'members', :action => 'autocomplete_for_member_login', :id => @project) }', { minChars: 1, frequency: 0.5, paramName: 'user' });" %>
+		<% unless users.empty? %>
+			<div>
+			<% users.each do |user| -%>
+			<label><%= check_box_tag 'member[user_ids][]', user.id, false %> <%= user %></label>
+			<% end -%>
+			</div>
+		<% end %>
+    <p><%= l(:label_role) %>: <%= f.select :role_id, roles.collect{|role| [role.name, role.id]}, :selected => nil %>
+    <%= submit_tag l(:button_add) %></p>
+		</fieldset>
+  <% end %>
+<% end %>

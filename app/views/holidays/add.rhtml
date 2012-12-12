@@ -1,0 +1,11 @@
+<h2>New Holiday</h2>
+
+<% labelled_tabular_form_for  :holiday, @holiday,
+                                                       :url => {:controller =>  'holidays', :action => 'add'}, 
+                                                       :html => {:id => 'holiday-form'} do |f| %>
+  <%= error_messages_for 'holiday' %>
+  <div class="box"> <%= render :partial => 'holidays/form', :locals => {:f => f} %></div>
+  <%= submit_tag l(:button_save) %>
+  <%= link_to 'Cancel', :controller => 'holidays' %>
+<% end %>
+

@@ -1,0 +1,16 @@
+<div class="contextual">
+  <%= link_to "New Holiday", {:controller => 'holidays' , :action => 'add'},:class => 'icon icon-add' %>
+</div>
+<h2><%= "Holidays" %></h2>
+
+<% if @holiday.any? %>
+  <%= render :partial => 'holidays/summary' unless params[:q] %>
+  <p><%= link_to l(:all_holidays), :controller => 'holidays' if params[:q]  %></p>
+  <%= render :partial => 'holidays/list' %>
+<% else %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
+
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'pm_dashboard', :plugin => 'pm_dashboard' %>
+<% end %>
