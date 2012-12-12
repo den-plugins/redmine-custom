@@ -180,6 +180,9 @@ module Custom
       
       def remaining_effort
         entry = RemainingEffortEntry.find(:first, :conditions => ["issue_id = #{id} and remaining_effort is not null"], :order => "created_on DESC") unless new_record?
+        if entry && Issue.find(id).status.name == "Closed"
+          entry.update_attribute :remaining_effort, 0
+        end
         return entry.nil? ? nil : entry.remaining_effort
       end
       
