@@ -50,13 +50,17 @@ class HolidaysController < ApplicationController
 
   def save_holidays
     if params[:date] && params[:title] && params[:description] && params[:location]
-      holiday = Holiday.new
-      holiday.event_date = Date.parse(params[:date])
-      holiday.title = params[:title]
-      holiday.description = params[:description]
-      holiday.location = params[:location]
-      if holiday.save
-        render :json => { :save_complete => true, :holiday_id => holiday.id }.to_json
+      holiday_existed = Holiday.find_by_event_date(Date.parse(params[:date]))
+      unless holiday_existed
+        holiday = Holiday.new
+        holiday.event_date = Date.parse(params[:date])
+        holiday.title = params[:title]
+        holiday.description = params[:description]
+        holiday.location = params[:location]
+      end
+      if holiday_existed || holiday.save
+        id = holiday_existed ? holiday_existed.id : holiday.id
+        render :json => { :save_complete => true, :holiday_id => id }.to_json
       else
         render :json => { :save_complete => false, :holiday_id => nil }.to_json
       end
