@@ -70,7 +70,7 @@ class HolidaysController < ApplicationController
   end
 
   def update_holidays
-    if params[:holiday_id] || params[:date] || params[:title] || params[:description] || params[:location]
+    if params[:holiday_id] && ( params[:date] || params[:title] || params[:description] || params[:location] )
       holiday = Holiday.find(params[:holiday_id])
       holiday.event_date = Date.parse(params[:date]) if params[:date]
       holiday.title = params[:title] if params[:title]
