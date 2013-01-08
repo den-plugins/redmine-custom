@@ -44,6 +44,9 @@ map.connect 'admin/holidays', :controller => 'holidays'
 map.connect 'projects/:project_id/issues/calendar', :controller => 'custom_issues', :action => 'calendar'
 map.connect 'projects/:project_id/issues/gantt', :controller => 'custom_issues', :action => 'gantt'
 map.with_options :controller => 'custom_issues' do |issues_routes|
+  issues_routes.with_options :conditions => {:method => :get} do |issues_views|
+    issues_views.connect 'issues/:id.:format', :action => 'show', :id => /\d+/
+  end
    issues_routes.with_options :conditions => {:method => :post} do |issues_actions|
      issues_actions.connect 'issues/:id/:action', :action => /edit/, :id => /\d+/
    end
