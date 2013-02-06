@@ -26,7 +26,7 @@ en:
   label_predefined_tasks: Create pre-defined tasks
   label_subtasks: Subtasks
   label_title: Title
-  
+  label_add_related_issue: Add Related Issue
   notice_account_not_active: Account locked/archived
 
   status_archived: archived

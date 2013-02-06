@@ -1,7 +1,5 @@
 <div class="contextual">
-<% if authorize_for('issue_relations', 'new') %>
-    <%= toggle_link l(:button_add), 'new-relation-form'%>
-<% end %>
+<%= link_to l(:label_create_subtask), {:controller => 'subtask', :action => 'create', :issue_from_id => @issue, :parent_tracker_id => @issue.tracker.id, :project_id => @project, :relation_type => "subtasks", :fixed_version_id => @issue.fixed_version_id  } %>
 </div>
 
 <% unless @issue.parent.nil? %>
@@ -77,5 +75,8 @@
 <%= render :partial => 'issue_relations/form', :locals => {:f => f}%>
 <% end %>
 
-<p><%= link_to l(:label_create_subtask), {:controller => 'subtask', :action => 'create', :issue_from_id => @issue, :parent_tracker_id => @issue.tracker.id, :project_id => @project, :relation_type => "subtasks", :fixed_version_id => @issue.fixed_version_id  } %></p>
-
+<p>
+  <% if authorize_for('issue_relations', 'new') %>
+      <%= toggle_link l(:label_add_related_issue), 'new-relation-form'%>
+  <% end %>
+</p>
