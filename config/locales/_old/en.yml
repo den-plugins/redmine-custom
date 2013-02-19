@@ -1,0 +1,40 @@
+en:
+  activerecord:
+    errors:
+      messages:
+        cant_be_blank: "can't be blank"
+        one_parent_allowed: "already has a parent"
+        open_tickets_found: "Open ticket(s) found. Cannot set state to accepted."
+  
+  error_timelog_24hr_limit: Cannot log more than 24 hours per day.
+  error_timelog_budget_consumed: Please log hours in a generic non-billable task.
+  error_timelog_project_allocation: You are not allowed to log time to this task.
+  error_timelog_project_membership: User is not a member of this project.
+  
+  field_estimated_hours: Estimated Effort
+  field_event_date: Day
+  field_fixed_version: Release/Iteration
+  field_remaining_effort: Remaining Effort
+  field_remaining_effort_entries: Remaining Effort
+  field_sp_hours: Story Points/ Hours
+  field_state: State
+  
+  label_account_inactive: (inactive)
+  label_event_date: Day
+  label_holiday_plural: Holidays
+  label_parent: Parent
+  label_predefined_tasks: Create pre-defined tasks
+  label_subtasks: Subtasks
+  label_title: Title
+  label_add_related_issue: Add Related Issue
+  notice_account_not_active: Account locked/archived
+
+  status_archived: archived
+  
+  task_board_text_no_sprint: There is no current Sprint for this Project
+  
+  text_destroy_all: Delete all issue(s) including all sub issues.
+  text_destroy_issue_children_question: There are sub issues found on the issue(s) you are about to delete. What do you want to do ?
+  text_destroy_parent_only: Delete parent issue(s) only.
+  text_destroy_time_entries_question: "{{hours}} hours were reported on the issues you are about to delete. What do you want to do?"
+
