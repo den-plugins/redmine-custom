@@ -86,6 +86,7 @@ module IssuesControllerPatch
     end
     
     def show_with_limit_journals
+      @spent_time_disable = @project.lock_time_logging <= Date.today ? true : false rescue false
       @total_journals = @issue.journals.count("journals.id", 
                                               :include => [:user, :details], 
                                               :conditions => ["#{JournalDetail.table_name}.property <> 'timelog' OR #{Journal.table_name}.notes is not null AND #{Journal.table_name}.notes <> ''"])

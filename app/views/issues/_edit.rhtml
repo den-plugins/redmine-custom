@@ -19,7 +19,7 @@
         <fieldset class="tabular"><legend><%= l(:button_log_time) %></legend>
         <% fields_for :time_entry, @time_entry, { :builder => TabularFormBuilder, :lang => current_language} do |time_entry| %>
         <div class="splitcontentleft">
-        <p><%= time_entry.text_field :hours, :size => 6, :label => :label_spent_time %> <%= l(:field_hours) %></p>
+        <p><%= time_entry.text_field :hours, :size => 6, :label => :label_spent_time, :disabled => @spent_time_disable %> <%= l(:field_hours) %></p>
         <p><strong>* Hours and minutes:</strong> 1h, 1 h, 1 hour, 2 hours, 30m, 30min, 1h30, 1h30m, 1:30<br />
            <strong>* Hours as decimal:</strong> 1.5, 1,5 (equals to 1h30m)</p>
         </div>
