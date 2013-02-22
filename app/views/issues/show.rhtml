@@ -65,7 +65,7 @@ end %>
     <td class="category"><b><%=l(:field_category)%>:</b></td><td><%=h @issue.category ? @issue.category.name : "-" %></td>
     <% if User.current.allowed_to?(:view_time_entries, @project) %>
     <td class="spent-time"><b><%=l(:label_spent_time)%>:</b></td>
-    <td class="spent-hours"><%= @issue.spent_hours > 0 ? (link_to l_hours(@issue.spent_hours), {:controller => 'timelog', :action => 'details', :project_id => @project, :issue_id => @issue}) : "-" %></td>
+    <td class="spent-hours"><%= @issue.spent_hours > 0 ? (link_to l_hours(@issue.spent_hours), {:controller => 'custom_timelog', :action => 'details', :project_id => @project, :issue_id => @issue}) : "-" %></td>
     <% end %>
 </tr>
 <tr>
