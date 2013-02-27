@@ -76,6 +76,10 @@ module Custom
           errors.add_to_base l(:error_timelog_budget_consumed) if (project_budget - actuals_to_date) < 0
         end
       end
+
+      def time_log_locked?
+        project.lock_time_logging >= Date.today ? false : true rescue true
+      end
     end
   end
 end

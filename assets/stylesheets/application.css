@@ -45,3 +45,17 @@
 #main-menu:after {
 	clear: both;
 }
+
+/* ==1 Column */
+.col1-5{width:90px;}
+.col1-4{width:80px;}
+.col1-3{width:70px;}
+.col1-2{width:60px;}
+.col1-1{width:50px;}
+.col1-0{width:40px;}
+
+/* align */
+.alignR{text-align:right !important;}
+.alignL{text-align:left !important;}
+.alignC{text-align:center !important;}
+.alignJ{text-align:justify !important;}
