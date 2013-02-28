@@ -43,10 +43,19 @@ module CustomFieldsHelper
         blank_option = custom_field.is_required? ?
             (custom_field.default_value.blank? ? "<option value=\"\">--- #{l(:actionview_instancetag_blank_option)} ---</option>" : '') :
             '<option></option>'
-        select_tag(field_name, blank_option + options_for_select(custom_field.possible_values, custom_value.value), :id => field_id)
+        add_entry = custom_value.value == "Admin" ? admin_lock_time_logging(custom_value) : ''
+        select_tag(field_name, blank_option + options_for_select(custom_field.possible_values, custom_value.value), :id => field_id) + add_entry
       else
         text_field_tag(field_name, custom_value.value, :id => field_id)
     end
+  end
+
+  def admin_lock_time_logging(cv)
+    default_date = cv.customized.lock_time_logging ? cv.customized.lock_time_logging  : Date.today
+    html = ''
+    html << "<span id='lock_time_logging' style='padding-left:30px'><b>Lock Time Logging</b>"
+    html << text_field_tag("project[lock_time_logging]", default_date, :readonly => true, :size => 10)
+    html << date_calendar_for("project_lock_time_logging",cv) + "</span>"
   end
 
   # Return custom field label tag
