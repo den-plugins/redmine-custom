@@ -77,9 +77,10 @@ module Custom
         end
       end
 
-      def time_log_locked?
-        project.lock_time_logging >= Date.today ? false : true rescue true
+      def time_log_locked?(spent_on)
+        project.lock_time_logging >= spent_on ? false : true rescue true
       end
+
     end
   end
 end
