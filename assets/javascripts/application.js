@@ -10,11 +10,12 @@ function adminLockTimeLogging(){
 }
 
 function checkLockTimeLogging(){
+
 	if(jQuery("#project_custom_field_values_15 option:selected").val() == "Admin"){
-		var now = new Date();
+		var now = new Date(new Date().getFullYear()-1, 11, 31)
 		var year = now.getFullYear();
-		var month = now.getMonth() < 10 ? "0" + (now.getMonth() + 1) : now.getMonth() + 1;
-		var date = now.getDate() < 10 ? "0" + now.getDate() : now.getDate();
+		var month = now.getMonth() + 1;
+		var date = now.getDate();
 		var nowDate = year + "-" + month + "-" + date;
 		lockDateElement = jQuery("#project_lock_time_logging");
 		if(lockDateElement.val() == ""){
