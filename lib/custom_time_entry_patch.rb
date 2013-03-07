@@ -57,8 +57,7 @@ module Custom
           else
             if membership=project.members.project_team.detect {|m| m.user_id == user_id}
               member_is_billable = membership.billable?(spent_on, spent_on)
-              allocated = membership.allocated?(spent_on)
-              errors.add_to_base l(:error_timelog_project_allocation) unless (issue_is_billable && member_is_billable && allocated) || (!issue_is_billable && allocated)
+              errors.add_to_base l(:error_timelog_project_allocation) unless (issue_is_billable && member_is_billable) || !issue_is_billable
             else
               errors.add_to_base l(:error_timelog_project_membership)
               errors.add_to_base l(:error_timelog_project_allocation)
