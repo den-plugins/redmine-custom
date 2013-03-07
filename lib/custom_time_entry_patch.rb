@@ -17,17 +17,17 @@ module Custom
     
     module InstanceMethods
       def allow_logging
-        if project.is_admin_project? && (project.archived? || past_closure_date || !time_log_locked?(spent_on) || !project.user_allocated_on_proj(spent_on))
+        if project.is_admin_project? && (project.archived? || past_closure_date || !time_log_locked?(spent_on) || !project.user_allocated_on_proj(user_id, spent_on))
           errors.add_to_base l(:error_project_archived) if project.archived?
           errors.add_to_base l(:error_project_closed) if past_closure_date
           errors.add_to_base l(:error_project_time_log_locked) if !time_log_locked?(spent_on)
-          errors.add_to_base l(:error_timelog_project_allocation) if !project.user_allocated_on_proj(spent_on)
+          errors.add_to_base l(:error_timelog_project_allocation) if !project.user_allocated_on_proj(user_id, spent_on)
         else
-          if project.is_dev_project? && (project.archived? || past_closure_date || !time_log_locked?(spent_on) || !project.user_allocated_on_proj(spent_on))
+          if project.is_dev_project? && (project.archived? || past_closure_date || !time_log_locked?(spent_on) || !project.user_allocated_on_proj(user_id, spent_on))
             errors.add_to_base l(:error_project_archived) if project.archived?
             errors.add_to_base l(:error_project_closed) if past_closure_date
             errors.add_to_base l(:error_project_time_log_locked) if !time_log_locked?(spent_on)
-            errors.add_to_base l(:error_timelog_project_allocation) if !project.user_allocated_on_proj(spent_on)
+            errors.add_to_base l(:error_timelog_project_allocation) if !project.user_allocated_on_proj(user_id, spent_on)
           end
         end
       end
