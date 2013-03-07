@@ -10,6 +10,9 @@ en:
   error_timelog_budget_consumed: Please log hours in a generic non-billable task.
   error_timelog_project_allocation: You are not allowed to log time to this task.
   error_timelog_project_membership: User is not a member of this project.
+  error_project_closed: Project is closed.
+  error_project_archived: Project is archived.
+  error_project_time_log_locked: Project time logging is locked.
   
   field_estimated_hours: Estimated Effort
   field_event_date: Day

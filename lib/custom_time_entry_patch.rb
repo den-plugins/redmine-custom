@@ -17,17 +17,24 @@ module Custom
     
     module InstanceMethods
       def allow_logging
-        if project.is_admin_project? && (project.archived? || compare_closure_date || !time_log_locked?(spent_on) || !project.user_allocated_on_devt_proj(spent_on))
-          errors.add_to_base "« Project is archived" if project.archived?
-          errors.add_to_base "« Project is closed" if compare_closure_date
-          errors.add_to_base "« Project time logging is locked" if !time_log_locked?(spent_on)
-          errors.add_to_base "« You are not allowed to log on this task" if !project.user_allocated_on_devt_proj(spent_on)
+        if project.is_admin_project? && (project.archived? || past_closure_date || !time_log_locked?(spent_on) || !project.user_allocated_on_proj(spent_on))
+          errors.add_to_base l(:error_project_archived) if project.archived?
+          errors.add_to_base l(:error_project_closed) if past_closure_date
+          errors.add_to_base l(:error_project_time_log_locked) if !time_log_locked?(spent_on)
+          errors.add_to_base l(:error_timelog_project_allocation) if !project.user_allocated_on_proj(spent_on)
+        else
+          if project.is_dev_project? && (project.archived? || past_closure_date || !time_log_locked?(spent_on) || !project.user_allocated_on_proj(spent_on))
+            errors.add_to_base l(:error_project_archived) if project.archived?
+            errors.add_to_base l(:error_project_closed) if past_closure_date
+            errors.add_to_base l(:error_project_time_log_locked) if !time_log_locked?(spent_on)
+            errors.add_to_base l(:error_timelog_project_allocation) if !project.user_allocated_on_proj(spent_on)
+          end
         end
       end
 
-      def compare_closure_date
+      def past_closure_date
         closure_date = project.custom_field_values.detect{|v| v.value.present? && v.custom_field_id.eql?(32) } 
-        closure_date && closure_date.value.to_date >= spent_on ? false : true
+        (closure_date.present? && closure_date.value.to_date >= spent_on) || closure_date.blank? ? false : true
       end
 
       def revalidate
