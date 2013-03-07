@@ -17,17 +17,17 @@ module Custom
     
     module InstanceMethods
       def allow_logging
-        if project.is_admin_project? && (project.archived? || has_closure_date? || !time_log_locked?(spent_on) || !project.user_allocated_on_devt_proj(spent_on))
+        if project.is_admin_project? && (project.archived? || compare_closure_date || !time_log_locked?(spent_on) || !project.user_allocated_on_devt_proj(spent_on))
           errors.add_to_base "« Project is archived" if project.archived?
-          errors.add_to_base "« Project is closed" if has_closure_date?
+          errors.add_to_base "« Project is closed" if compare_closure_date
           errors.add_to_base "« Project time logging is locked" if !time_log_locked?(spent_on)
           errors.add_to_base "« You are not allowed to log on this task" if !project.user_allocated_on_devt_proj(spent_on)
         end
       end
 
-      def has_closure_date?
+      def compare_closure_date
         closure_date = project.custom_field_values.detect{|v| v.value.present? && v.custom_field_id.eql?(32) } 
-        closure_date.blank? ? false : true
+        closure_date && closure_date.value.to_date >= spent_on ? false : true
       end
 
       def revalidate
