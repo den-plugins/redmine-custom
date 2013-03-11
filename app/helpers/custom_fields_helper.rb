@@ -51,7 +51,7 @@ module CustomFieldsHelper
   end
 
   def admin_lock_time_logging(cv)
-    default_date = cv.customized.lock_time_logging ? cv.customized.lock_time_logging  : Date.today.end_of_year.last_year
+    default_date = cv.customized && cv.customized.lock_time_logging ? cv.customized.lock_time_logging  : Date.today.end_of_year.last_year
     html = ''
     html << "<span id='lock_time_logging' style='padding-left:30px'><b>Lock Time Logging until</b>"
     html << text_field_tag("project[lock_time_logging]", default_date, :readonly => true, :size => 10)
