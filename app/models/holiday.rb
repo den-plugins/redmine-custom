@@ -4,9 +4,9 @@ class Holiday < ActiveRecord::Base
   
   validates_presence_of :title, :description, :location, :event_date
   
-  def holiday_on_member_location?(res)
+  def holiday_on_member_location?(user)
 		holiday_location = Holiday::LOCATIONS[location]
-		user_location = res.user.location
+		user_location = user.location
 
 		holiday_location.scan(user_location).present? || holiday_location.eql?("All") ? true : false
   end

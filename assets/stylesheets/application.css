@@ -60,4 +60,5 @@
 .alignC{text-align:center !important;}
 .alignJ{text-align:justify !important;}
 
-.fontRed{color:#FF0000;}
+.redFont{color:#FF0000;}
+.redBorder{border-style:solid;border-color:#ff0000;border-bottom:solid #ff0000 !important;}
