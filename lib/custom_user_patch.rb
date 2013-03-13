@@ -52,6 +52,10 @@ module Custom
       def archived?
         status == User::STATUS_ARCHIVED
       end
+
+      def time_logs_admin?
+        custom_field_values.detect{|v| v.custom_field.name == "Time Logs Administrator"}.value.to_i == 1 ? true : false
+      end
     end
   end
 end
