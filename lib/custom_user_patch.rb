@@ -54,7 +54,7 @@ module Custom
       end
 
       def time_logs_admin?
-        custom_field_values.detect{|v| v.custom_field.name == "Time Logs Administrator"}.value.to_i == 1 ? true : false
+        custom_field_values.detect{|v| v.custom_field.name == "Time Logs Administrator"}.value.to_i == 1 ? true : false rescue false
       end
     end
   end
