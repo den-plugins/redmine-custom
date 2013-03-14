@@ -24,6 +24,10 @@ module Custom
         temp = custom_values.detect{|x| x.custom_field.name.downcase["closure"]}
         (temp and !temp.value.blank? and temp.value.to_date < Date.current) ? true : false
       end
+
+      def is_exst_engg_admin?
+        name.downcase == "exist engineering admin" ? true : false
+      end
     end
   end
 end
