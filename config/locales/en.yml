@@ -9,6 +9,7 @@ en:
   error_timelog_24hr_limit: Cannot log more than 24 hours per day.
   error_timelog_budget_consumed: Please log hours in a generic non-billable task.
   error_timelog_project_allocation: You are not allowed to log time to this task.
+  error_exst_admin_logged_hours: Kindly log your time on your appropriate admin project.
   error_timelog_project_membership: User is not a member of this project.
   error_project_closed: Project is closed.
   error_project_archived: Project is archived.

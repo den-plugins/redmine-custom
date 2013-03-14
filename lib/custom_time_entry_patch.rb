@@ -17,11 +17,13 @@ module Custom
     
     module InstanceMethods
       def allow_logging
-        if project.is_admin_project? && (project.archived? || past_closure_date || !time_log_locked?(spent_on) || !project.user_allocated_on_proj(user_id, spent_on))
+        if project.is_admin_project? && 
+            (project.archived? || past_closure_date || !time_log_locked?(spent_on) || !project.user_allocated_on_proj(user_id, spent_on) || !can_log_to_exst_engg_admin?)
           errors.add_to_base l(:error_project_archived) if project.archived?
           errors.add_to_base l(:error_project_closed) if past_closure_date
           errors.add_to_base l(:error_project_time_log_locked) if !time_log_locked?(spent_on)
           errors.add_to_base l(:error_timelog_project_allocation) if !project.user_allocated_on_proj(user_id, spent_on)
+          errors.add_to_base l(:error_exst_admin_logged_hours) if !can_log_to_exst_engg_admin?
         else
           if project.is_dev_project? && (project.archived? || past_closure_date || !time_log_locked?(spent_on) || !project.user_allocated_on_proj(user_id, spent_on))
             errors.add_to_base l(:error_project_archived) if project.archived?
@@ -30,6 +32,21 @@ module Custom
             errors.add_to_base l(:error_timelog_project_allocation) if !project.user_allocated_on_proj(user_id, spent_on)
           end
         end
+      end
+
+      def can_log_to_exst_engg_admin?
+        @external_allocation = 0
+        @allocations = []
+        if project.is_exst_engg_admin?
+          user.resource_allocations.flatten.each do |allo|
+            allo_within_date = spent_on.between?(allo.start_date,allo.end_date)
+            if !["internal project","n/a"].include?(allo.member.project.category.downcase) && allo_within_date
+              @external_allocation += allo.resource_allocation.to_i
+              @allocations << "#{allo.member.project} - #{allo.resource_allocation.to_i}"
+            end
+          end
+        end
+        @external_allocation >= 100 ? false : true
       end
 
       def past_closure_date
