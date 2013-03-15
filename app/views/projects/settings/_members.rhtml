@@ -75,12 +75,7 @@
   <% end %>
   </td>
   <td align="center">
-  <% if authorize_for('members', 'edit') %>
-    <% remote_form_for(:member, member, :url => {:controller => 'members', :action => 'edit', :id => member}, :method => :post) do |f| %>
-      <%= f.text_field :sow_rate, :size => 5, :id => 'member_sow_rate_' + member.id.to_s %>
-      <%= submit_tag l(:button_change), :class => "small", :onclick => "return validateFloat(document.getElementById('member_sow_rate_#{member.id}'))" %>                     
-    <% end %>
-  <% end %>
+    <%= member.resource_allocations.last && member.resource_allocations.last.sow_rate ? member.resource_allocations.last.sow_rate : "" %>
   </td>
   
     <td align="center">
