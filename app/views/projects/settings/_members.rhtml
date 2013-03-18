@@ -75,7 +75,7 @@
   <% end %>
   </td>
   <td align="center">
-    <%= member.resource_allocations.last && member.resource_allocations.last.sow_rate ? member.resource_allocations.last.sow_rate : "" %>
+    <%= member.resource_allocations.last && member.resource_allocations.last.sow_rate ? number_with_precision(member.resource_allocations.last.sow_rate, :precision => 2) : "" %>
   </td>
   
     <td align="center">
