@@ -40,7 +40,7 @@ module Custom
         if project.is_exst_engg_admin?
           user.resource_allocations.flatten.each do |allo|
             allo_within_date = spent_on.between?(allo.start_date,allo.end_date)
-            if !["internal project","n/a"].include?(allo.member.project.category.downcase) && allo_within_date
+            if allo.member.project.category && !["internal project","n/a"].include?(allo.member.project.category.downcase) && allo_within_date
               @external_allocation += allo.resource_allocation.to_i
               @allocations << "#{allo.member.project} - #{allo.resource_allocation.to_i}"
             end
