@@ -1,0 +1,75 @@
+<%= error_messages_for 'project' %>
+
+<div class="box">
+  <!--[form:project]-->
+  <p><%= f.text_field :name, :required => true %><br /><em><%= l(:text_caracters_maximum, 30) %></em></p>
+
+  <% if User.current.admin? && !@project.possible_parents.empty? %>
+      <p><label><%= l(:field_parent) %></label><%= parent_project_select_tag(@project) %></p>
+      <div id="div_inherit" style="display:none;">
+        <p><%= label("inherit", "Inherit Members")%> <%= check_box :project, :inherit %></p>
+      </div>
+  <% end %>
+
+  <p><%= f.text_area :description, :rows => 5, :class => 'wiki-edit' %></p>
+  <p><%= f.text_field :identifier, :required => true, :disabled => @project.identifier_frozen? %>
+    <% unless @project.identifier_frozen? %>
+        <br /><em><%= l(:text_length_between, :min => 1, :max => 20) %> <%= l(:text_project_identifier_info) %></em>
+    <% end %></p>
+  <p><%= f.text_field :homepage, :size => 60 %></p>
+  <p><%= f.check_box :is_public %></p>
+  <p><%= label("label", "Accounting Type")  %>
+    <% @accounting.each do |atyp| %>
+        <%= f.radio_button(:acctg_type, atyp, :checked => @default == atyp.name ) %>
+        <%= atyp %>
+    <% end %>
+  </p>
+  <%= wikitoolbar_for 'project_description' %>
+
+  <% @project.custom_field_values.each do |value| %>
+      <% unless value.custom_field.name == 'Unit Testing Score'  ||
+              value.custom_field.name == 'Automation Testing Score' ||
+              value.custom_field.name == 'Total Closed Defects' ||
+              value.custom_field.name == 'Defect Removal Score' ||
+              value.custom_field.name == 'Total Raised Defects'%>
+          <p><%= custom_field_tag_with_label :project, value %></p>
+      <% end %>
+  <% end %>
+  <p><%= f.check_box :show_update_option %></p>
+  <%= call_hook(:view_projects_form, :project => @project, :form => f) %>
+</div>
+
+<% unless @trackers.empty? %>
+    <fieldset class="box"><legend><%=l(:label_tracker_plural)%></legend>
+      <% @trackers.each do |tracker| %>
+          <label class="floating">
+            <%= check_box_tag 'project[tracker_ids][]', tracker.id, @project.trackers.include?(tracker) %>
+            <%= tracker %>
+          </label>
+      <% end %>
+      <%= hidden_field_tag 'project[tracker_ids][]', '' %>
+    </fieldset>
+<% end %>
+
+<% unless @issue_custom_fields.empty? %>
+    <fieldset class="box"><legend><%=l(:label_custom_field_plural)%></legend>
+      <% @issue_custom_fields.each do |custom_field| %>
+          <label class="floating">
+            <%= check_box_tag 'project[issue_custom_field_ids][]', custom_field.id, (@project.all_issue_custom_fields.include? custom_field), (custom_field.is_for_all? ? {:disabled => "disabled"} : {}) %>
+            <%= custom_field.name %>
+          </label>
+      <% end %>
+      <%= hidden_field_tag 'project[issue_custom_field_ids][]', '' %>
+    </fieldset>
+<% end %>
+<!--[eoform:project]-->
+
+<script>
+    $('project_parent_id').onchange = function() {
+        if(this.value == "")
+            Element.hide('div_inherit');
+        else
+            Element.show('div_inherit');
+    }
+
+</script>
