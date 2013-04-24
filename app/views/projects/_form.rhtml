@@ -1,4 +1,5 @@
 <%= error_messages_for 'project' %>
+<% field = @project.get_efficiency_fields %>
 
 <div class="box">
   <!--[form:project]-->
@@ -27,11 +28,7 @@
   <%= wikitoolbar_for 'project_description' %>
 
   <% @project.custom_field_values.each do |value| %>
-      <% unless value.custom_field.name == 'Unit Testing Score'  ||
-              value.custom_field.name == 'Automation Testing Score' ||
-              value.custom_field.name == 'Total Closed Defects' ||
-              value.custom_field.name == 'Defect Removal Score' ||
-              value.custom_field.name == 'Total Raised Defects'%>
+      <% unless field.include? value.custom_field.name %>
           <p><%= custom_field_tag_with_label :project, value %></p>
       <% end %>
   <% end %>

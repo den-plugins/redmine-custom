@@ -1,5 +1,6 @@
-<h2><%=l(:label_overview)%></h2> 
-	
+<h2><%=l(:label_overview)%></h2>
+<% field = @project.get_efficiency_fields %>
+
 <div class="splitcontentleft">
 	<%= textilizable @project.description %>	
 	<ul>
@@ -9,7 +10,7 @@
 	    <%= @subprojects.collect{|p| link_to(h(p), :action => 'show', :id => p)}.join(", ") %></li>
   <% end %>
 	<% @project.custom_values.each do |custom_value| %>
-	<% if custom_value.value and !custom_value.value.empty? %>
+	<% if custom_value.value and !custom_value.value.empty? && !(field.include? custom_value.custom_field.name) %>
 	   <li><%= custom_value.custom_field.name%>: <%=h show_value(custom_value) %></li>
 	<% end %>
 	<% end %>

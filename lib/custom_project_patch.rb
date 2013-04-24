@@ -28,6 +28,18 @@ module Custom
       def is_exst_engg_admin?
         name.downcase == "exist engineering admin" ? true : false
       end
+
+      def get_efficiency_fields
+        efficiency_array = []
+        filepath = "#{Rails.root}/config/efficiency_settings.csv"
+        FasterCSV.foreach(filepath,
+                          :headers           => true,
+                          :return_headers    => true,
+                          :header_converters => :symbol) do |f|
+        efficiency_array << f.fields(:efficiency_fields)
+        end
+        efficiency_array.flatten
+      end
     end
   end
 end
