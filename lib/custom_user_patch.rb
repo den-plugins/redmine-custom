@@ -7,6 +7,7 @@ module Custom
         unloadable
         #alias_method_chain :try_to_login, :custom_error_message
         # additional account status
+        has_many :rate_histories
         const_set(:STATUS_ARCHIVED, 4)
         named_scope :active_and_archived, :conditions => "#{User.table_name}.status = #{User::STATUS_ACTIVE} or #{User.table_name}.status = #{User::STATUS_ARCHIVED}"
       end
