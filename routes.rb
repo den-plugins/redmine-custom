@@ -31,7 +31,7 @@ map.with_options :controller => 'issues' do |issues_routes|
   issues_routes.with_options :conditions => {:method => :post} do |issues_actions|
     issues_actions.connect 'projects/:project_id/issues/:copy_from/copy', :action => 'new'
     issues_actions.connect 'issues/:id/quoted', :action => 'reply', :id => /\d+/
-    issues_actions.connect 'issues/:id/:action', :action => /move|destroy/, :id => /\d+/
+    issues_actions.connect 'issues/:id/:action', :action => /move/, :id => /\d+/
   end
   issues_routes.connect 'issues/:action'
 end
