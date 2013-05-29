@@ -48,7 +48,7 @@ map.with_options :controller => 'custom_issues' do |issues_routes|
     issues_views.connect 'issues/:id.:format', :action => 'show', :id => /\d+/
   end
    issues_routes.with_options :conditions => {:method => :post} do |issues_actions|
-     issues_actions.connect 'issues/:id/:action', :action => /edit/, :id => /\d+/
+     issues_actions.connect 'issues/:id/:action', :action => /edit|destroy/, :id => /\d+/
    end
 end
 
