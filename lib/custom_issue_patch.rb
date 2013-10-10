@@ -7,21 +7,21 @@ module Custom
         unloadable # Send unloadable so it will not be unloaded in development
         alias_method_chain :move_to, :copy
         attr_accessor :predefined_tasks, :old_status
-        
+
         has_many :remaining_effort_entries, :dependent => :destroy
         before_save :remember_old_status, :if => "!children.empty?"
         before_save :update_children_iterations, :if => "!children.empty? and fixed_version_id_changed?"
-        before_save :is_closed_issue_effects, :if => :closed?
+        before_save :is_closed_issue_effects, :if => "status_id == 5"
         after_save :update_parent_status, :if => :has_parent?
         #after_save :closing_parent_status, :if => "closed? and !children.empty?"
         after_create :auto_create_tasks, :if => "feature? and !predefined_tasks.nil?"
         after_update :auto_create_tasks, :if => "feature? and !predefined_tasks.nil?"
       end
     end
-    
+
     module ClassMethods
     end
-    
+
     module InstanceMethods
 
       #TODO: Refactor
@@ -42,7 +42,7 @@ module Custom
           updated_on_will_change!
         end
       end
-      
+
       def update_children_iterations
         children.each do |child|
           child.fixed_version = fixed_version
@@ -63,7 +63,7 @@ module Custom
       def remember_old_status
         self.old_status = self.status
       end
-      
+
       def closing_parent_status
         children.each do |c|
           if !c.closed?
@@ -78,18 +78,18 @@ module Custom
 
       def delete_child_issues
         children.each do |c|
-          puts "Deleting child #{c.id}..." 
+          puts "Deleting child #{c.id}..."
           c.delete_child_issues
           c.destroy
         end
       end
-      
+
       def is_closed_issue_effects
         unless remaining_effort.nil? or remaining_effort.to_i.eql?(0)
           self.remaining_effort = 0
         end
       end
-      
+
       def move_to_with_copy(new_project, new_tracker = nil, options = {})
         options ||= {}
         issue = options[:copy] ? self.clone : self
@@ -132,11 +132,11 @@ module Custom
         end
         return issue
       end
-      
+
       def parent_issue
         parent.issue_from
       end
-  
+
       def not_parent?
         !children.any? and parent
       end
@@ -144,48 +144,44 @@ module Custom
       def has_parent?
         !parent.nil?
       end
-      
+
       def bug?
         self.tracker_id.eql? 1
       end
-      
+
       def feature?
         self.tracker_id.eql? 2
       end
-       
+
       def support?
         self.tracker_id.eql? 3
       end
-      
+
       def task?
         self.tracker_id.eql? 4
       end
-      
-      #TODO: Refactor (in auto setting remaining_effort to 0 if issue is closed)
+
       def remaining_effort=(value)
         old_value = remaining_effort
-        return false if old_value.to_i.eql?(0) && IssueStatus.find(status_id).is_closed?
+        return false if value.blank? || (old_value.to_i.zero? && IssueStatus.find(status_id).is_closed?)
         if entry = RemainingEffortEntry.find(:first, :conditions => ["issue_id = ? AND created_on = ?", self.id, Date.today])
-          entry.update_attributes({:remaining_effort => value}) unless value.blank?
+          entry.update_attributes({:remaining_effort => value})
         else
           self.remaining_effort_entries.build(:remaining_effort => value, :created_on => Date.today)
         end
-        unless new_record? or value.blank?
+        unless new_record?
           if @issue_before_change
             @current_journal ||= Journal.new(:journalized => self, :user => User.current, :notes => "")
             journalize_remaining_effort(old_value.to_f, value.to_f)
           end
         end
       end
-      
+
+      # TODO : implement try() - http://ozmm.org/posts/try.html
       def remaining_effort
-        entry = RemainingEffortEntry.find(:first, :conditions => ["issue_id = #{id} and remaining_effort is not null"], :order => "created_on DESC") unless new_record?
-        if entry && Issue.find(id).status.name == "Closed"
-          entry.update_attribute :remaining_effort, 0
-        end
-        return entry.nil? ? nil : entry.remaining_effort
+        remaining_effort_entries.last ? remaining_effort_entries.last.remaining_effort : nil
       end
-      
+
       def journalize_remaining_effort(old_value, value)
         @current_journal.details << JournalDetail.new(:property => 'attr',
                                                       :prop_key => 'remaining_effort',
@@ -211,7 +207,7 @@ module Custom
           "Integration"
         ]
       end
-      
+
       def auto_create_tasks
         predefined_tasks.each do |task_subject|
           @task = Issue.new
@@ -242,14 +238,14 @@ module Custom
       def can_be_carried_over?
         !time_entries.empty? and !closed? and (remaining_effort.to_f > 0.0) and children_carried_over?
       end
-      
+
       def children_transferable?
         res = true
         temp = children.map(&:is_transferable?)
         res = false if (!temp.blank? && temp.include?(false))
         res
       end
-      
+
       def custom_clone
         new_me = project.issues.build
         hash = attributes
@@ -258,7 +254,7 @@ module Custom
         new_me.estimated_hours = estimated_hours
         new_me
       end
-     
+
       def time_spent
         time_entries.map(&:hours).sum.to_f.round(2)
       end
@@ -269,7 +265,7 @@ module Custom
         res = false if (!temp.blank? && temp.include?(false))
         res
       end
-      
+
       def hashify_custom_values
         hash = {}
         custom_values.each do |c|
